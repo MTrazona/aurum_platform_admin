@@ -137,4 +137,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  gradient {
+    @apply bg-gradient-to-r from-[#000000] to-[#f89004];
+  }
 }

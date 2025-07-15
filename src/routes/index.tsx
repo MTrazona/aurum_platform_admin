@@ -1,5 +1,5 @@
 import { PrivateLayout, PublicLayout } from "@/layout";
-import { DashboardPage, SigninPage } from "@/pages";
+import { DashboardPage, SigninPage, TransactionsPage, UsersPage } from "@/pages";
 
 export const routeList = {
   public: {
@@ -12,6 +12,8 @@ export const routeList = {
     layout: <PrivateLayout />,
     routes: [
       { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/users', element: <UsersPage /> },
+      { path: '/transactions', element: <TransactionsPage /> },
     ],
   },
 };

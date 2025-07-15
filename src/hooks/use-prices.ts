@@ -1,5 +1,5 @@
 // src/hooks/usePrices.ts
-import { getCurrentGoldPrice, getUsdtValueAPI } from "@/apis/token_price";
+import { getCurrentGoldPrice, getUsdtValueAPI } from "@/apis/token-price";
 import { useQuery } from "@tanstack/react-query";
 
 type CombinedPriceData = {

@@ -1,3 +1,4 @@
+import useStore from "@/zustand/store/store";
 import axios from "axios";
 
 const baseURL =
@@ -15,7 +16,8 @@ api.interceptors.request.use(
     const isPublic = config.isPublic || false;
 
     if (!isPublic) {
-      const accessToken = localStorage.getItem("accessToken");
+      const { jwt } = useStore.getState().admin;
+      const accessToken = jwt;
       if (accessToken) {
         config.headers.set?.("Authorization", `Bearer ${accessToken}`);
       }

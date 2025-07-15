@@ -10,10 +10,10 @@ import { Outlet } from "react-router-dom"
 
 export default function PrivateLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="bg-[#1E1E20]">
       <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 bg-[#1E1E20] text-white gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-8">
+      <SidebarInset className="flex flex-col h-screen">
+        <header className="flex sticky top-0 z-10 h-16 shrink-0 bg-[#2F2F2F] text-white gap-2">
           <div className="flex items-center gap-2 pl-4">
             <SidebarTrigger className="-ml-1" />
             <Separator
@@ -25,10 +25,13 @@ export default function PrivateLayout() {
             </div>
           </div>
         </header>
-        <div className="flex flex-1 flex-col bg-[#2F2F2F] gap-4 p-4 pt-0">
+
+        {/* Make this the scrollable area */}
+        <div className="flex-1 overflow-auto bg-[#2F2F2F] p-4">
           <Outlet />
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
+

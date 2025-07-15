@@ -10,66 +10,64 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail
 } from "@/components/ui/sidebar";
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
   Building,
   ChevronRight,
-  ClipboardList,
-  Command,
   Globe,
   SquareTerminal,
 } from "lucide-react"; // Importing icons
-import { Link, useLocation } from "react-router-dom"; // Importing useLocation
 import * as React from "react";
+import { Link, useLocation } from "react-router-dom"; // Importing useLocation
 
 const navGroups = [
   {
     label: "Core",
     icon: SquareTerminal, // Add icon for the label
     items: [
-      { title: "Dashboard", url: "/dashboard", icon: SquareTerminal },
-      { title: "Users", url: "/users", icon: Bot },
-      { title: "Transactions", url: "/transactions", icon: Command },
+      { title: "Dashboard", url: "/dashboard" },
+      { title: "Users", url: "/users" },
+      { title: "Transactions", url: "/transactions" },
     ],
   },
   {
     label: "Banking Requests",
     icon: BookOpen, // Add icon for the label
     items: [
-      { title: "Bank Request", url: "/bank-request", icon: BookOpen },
-      { title: "Remittance Request", url: "/remittance-request", icon: Building },
-      { title: "Direct Deposit Reward", url: "/direct-deposit-reward", icon: Building },
-      { title: "USDAU Request", url: "/usda-request", icon: Building },
+      { title: "Bank Request", url: "/bank-request" },
+      { title: "Remittance Request", url: "/remittance-request" },
+      { title: "Direct Deposit Reward", url: "/direct-deposit-reward" },
+      { title: "USDAU Request", url: "/usda-request" },
     ],
   },
   {
     label: "Buy / Convert / Rewards",
     icon: AudioWaveform, // Add icon for the label
     items: [
-      { title: "Buy Request", url: "/buy-request", icon: AudioWaveform },
-      { title: "Convert Request", url: "/convert-request", icon: Globe },
-      { title: "QMGT +", url: "/qmgt-plus", icon: Building },
-      { title: "Redeem Reward Request", url: "/redeem-reward", icon: Building },
+      { title: "Buy Request", url: "/buy-request" },
+      { title: "Convert Request", url: "/convert-request" },
+      { title: "QMGT +", url: "/qmgt-plus" },
+      { title: "Redeem Reward Request", url: "/redeem-reward" },
     ],
   },
   {
     label: "GAE Requests",
     icon: Globe, // Add icon for the label
     items: [
-      { title: "GAE Request", url: "/gae-request", icon: Globe },
-      { title: "GAE EXTRA Request", url: "/gae-extra-request", icon: Globe },
-      { title: "GAE-PH Request", url: "/gae-ph-request", icon: Globe },
-      { title: "GAE Terminate", url: "/gae-terminate", icon: ClipboardList },
+      { title: "GAE Request", url: "/gae-request" },
+      { title: "GAE EXTRA Request", url: "/gae-extra-request" },
+      { title: "GAE-PH Request", url: "/gae-ph-request" },
+      { title: "GAE Terminate", url: "/gae-terminate" },
     ],
   },
   {
@@ -85,6 +83,16 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { pathname } = useLocation(); // Get the current path using useLocation
   const [openGroup, setOpenGroup] = React.useState<string | null>(null); // State to track the open group
 
+  // Check if the current pathname matches any of the item URLs to open the group by default
+  React.useEffect(() => {
+    const matchingGroup = navGroups.find((group) =>
+      group.items.some((item) => item.url === pathname)
+    );
+    if (matchingGroup) {
+      setOpenGroup(matchingGroup.label); // Open the group if a match is found
+    }
+  }, [pathname]);
+
   const handleToggleGroup = (label: string) => {
     setOpenGroup((prev) => (prev === label ? null : label)); // Toggle the group
   };
@@ -93,62 +101,42 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher
-          teams={[
-            { name: "Aurum", plan: "Platform", logo: AudioWaveform },
-            { name: "Acme Corp.", plan: "Startup", logo: Globe },
-          ]}
+          teams={[{ name: "Aurum", plan: "Platform", logo: AudioWaveform }, { name: "Acme Corp.", plan: "Startup", logo: Globe }]}
         />
       </SidebarHeader>
 
       <SidebarContent>
-        {navGroups.map((group) => (
-          <Collapsible
-            key={group.label}
-            defaultOpen={openGroup === group.label}
-            open={openGroup === group.label}
-          >
-            <SidebarGroup>
-              <SidebarGroupLabel
-                asChild
-                className="group/label text-primary-foreground font-normal hover:bg-[#2F2F2F] hover:text-white text-md"
-              >
-                <CollapsibleTrigger
-                  onClick={() => handleToggleGroup(group.label)}
-                  className="flex items-center gap-3"
-                >
-                  {/* Add icon next to the label */}
-                  {group.icon && <group.icon className="w-5 h-5" />}
-                  {group.label}{" "}
-                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
-                <SidebarGroupContent>
-                  <SidebarMenu className="gap-2 px-4 pt-2">
-                    {group.items.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === item.url}
-                          className={`hover:bg-[#2F2F2F] hover:text-white ${
-                            pathname === item.url
-                              ? "!bg-[#2F2F2F] !text-[#dca955] p-4"
-                              : ""
-                          } `}
-                        >
-                          <Link to={item.url} className="flex items-center gap-2">
-                            {item.icon && <item.icon className="w-5 h-5" />} {/* Add icon */}
-                            {item.title}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </CollapsibleContent>
-            </SidebarGroup>
-          </Collapsible>
-        ))}
+        <SidebarGroup>
+          <SidebarMenu>
+            {navGroups.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <Collapsible open={openGroup === item.label}>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton onClick={() => handleToggleGroup(item.label)}>
+                      {item.icon && <item.icon />}
+                      <span className="text-lg">{item.label}</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3">
+                    <SidebarMenuSub>
+                      {item.items?.map((subItem) => {
+                        return(
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild className={`hover:bg-gradient-to-r from-[#000000] to-[#f89004] hover: !text-white ${subItem.url === pathname && 'bg-gradient-to-r from-[#000000] to-[#f89004]'}`}>
+                            <Link to={subItem.url} className="p-5">
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )})}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

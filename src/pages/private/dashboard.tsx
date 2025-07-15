@@ -1,6 +1,8 @@
 
 export default function DashboardPage() {
   return (
-    <div>DashboardPage</div>
+    <div className="flex gap-4">
+    
+    </div>
   )
 }
