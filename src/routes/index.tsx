@@ -1,19 +1,40 @@
 import { PrivateLayout, PublicLayout } from "@/layout";
-import { DashboardPage, SigninPage, TransactionsPage, UsersPage } from "@/pages";
+import {
+  BankRequestsPage,
+  BuyRequestsPage,
+  DashboardPage,
+  GCARequestsPage,
+  SigninPage,
+  TransactionsPage,
+  UsersPage,
+} from "@/pages";
+import GAERequestsPage from "@/pages/private/gae-requests";
 
+export const urls = {
+  login: "/",
+  dashboard: "/dashboard",
+  users: "/users",
+  transactions: "/transactions",
+  bankReq: "/bank-requests",
+  buyReq: "/buy-requests",
+  gcaReq: "/gca-requests",
+  gaeReq: "/gae-requests",
+};
 export const routeList = {
   public: {
     layout: <PublicLayout />,
-    routes: [
-      { path: '/', element: <SigninPage /> },
-    ],
+    routes: [{ path: urls.login, element: <SigninPage /> }],
   },
   private: {
     layout: <PrivateLayout />,
     routes: [
-      { path: '/dashboard', element: <DashboardPage /> },
-      { path: '/users', element: <UsersPage /> },
-      { path: '/transactions', element: <TransactionsPage /> },
+      { path: urls.dashboard, element: <DashboardPage /> },
+      { path: urls.users, element: <UsersPage /> },
+      { path: urls.transactions, element: <TransactionsPage /> },
+      { path: urls.bankReq, element: <BankRequestsPage /> },
+      { path: urls.buyReq, element: <BuyRequestsPage /> },
+      { path: urls.gcaReq, element: <GCARequestsPage /> },
+      { path: urls.gaeReq, element: <GAERequestsPage /> },
     ],
   },
 };

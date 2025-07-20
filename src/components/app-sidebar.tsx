@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
@@ -17,8 +18,9 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail
+  SidebarRail,
 } from "@/components/ui/sidebar";
+import { urls } from "@/routes";
 import {
   AudioWaveform,
   BookOpen,
@@ -26,82 +28,74 @@ import {
   ChevronRight,
   Globe,
   SquareTerminal,
-} from "lucide-react"; // Importing icons
+} from "lucide-react";
 import * as React from "react";
-import { Link, useLocation } from "react-router-dom"; // Importing useLocation
-
-const navGroups = [
-  {
-    label: "Core",
-    icon: SquareTerminal, // Add icon for the label
-    items: [
-      { title: "Dashboard", url: "/dashboard" },
-      { title: "Users", url: "/users" },
-      { title: "Transactions", url: "/transactions" },
-    ],
-  },
-  {
-    label: "Banking Requests",
-    icon: BookOpen, // Add icon for the label
-    items: [
-      { title: "Bank Request", url: "/bank-request" },
-      { title: "Remittance Request", url: "/remittance-request" },
-      { title: "Direct Deposit Reward", url: "/direct-deposit-reward" },
-      { title: "USDAU Request", url: "/usda-request" },
-    ],
-  },
-  {
-    label: "Buy / Convert / Rewards",
-    icon: AudioWaveform, // Add icon for the label
-    items: [
-      { title: "Buy Request", url: "/buy-request" },
-      { title: "Convert Request", url: "/convert-request" },
-      { title: "QMGT +", url: "/qmgt-plus" },
-      { title: "Redeem Reward Request", url: "/redeem-reward" },
-    ],
-  },
-  {
-    label: "GAE Requests",
-    icon: Globe, // Add icon for the label
-    items: [
-      { title: "GAE Request", url: "/gae-request" },
-      { title: "GAE EXTRA Request", url: "/gae-extra-request" },
-      { title: "GAE-PH Request", url: "/gae-ph-request" },
-      { title: "GAE Terminate", url: "/gae-terminate" },
-    ],
-  },
-  {
-    label: "Progression",
-    icon: Building, // Add icon for the label
-    items: [
-      { title: "Rankup Request", url: "/rankup-request", icon: Building },
-    ],
-  },
-];
+import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { pathname } = useLocation(); // Get the current path using useLocation
-  const [openGroup, setOpenGroup] = React.useState<string | null>(null); // State to track the open group
+  const { pathname } = useLocation();
+  const [openGroup, setOpenGroup] = React.useState<string | null>(null);
+  const navGroups = [
+    {
+      label: "Core",
+      icon: SquareTerminal,
+      items: [
+        { title: "Dashboard", url: urls.dashboard },
+        { title: "Users", url: urls.users },
+        { title: "Transactions", url: urls.transactions },
+      ],
+    },
+    {
+      label: "Request Management",
+      icon: BookOpen,
+      items: [
+        { title: "Bank Request", url: urls.bankReq },
+        { title: "Buy Request", url: urls.buyReq },
+        { title: "GCA Request", url: urls.gcaReq },
+         { title: "GAE Request", url: urls.gaeReq },
+      ],
+    },
+    {
+      label: "Rewards & Rank",
+      icon: AudioWaveform,
+      items: [
+        { title: "QMGT +", url: "/b-request" },
+        { title: "Redeem Reward Request", url: "/convert-request" },
+        { title: "Rankup Request", url: "/qmgt-plus" },
+        { title: "Direct Deposit Reward", url: "/redeem-reward" },
+      ],
+    },
+    {
+      label: "Other",
+      icon: Building,
+      items: [
+        { title: "Remittance Request", url: "/rankup-request", icon: Building },
+        { title: "USDAU Request", url: "/rankup-request", icon: Building },
+      ],
+    },
+  ];
 
-  // Check if the current pathname matches any of the item URLs to open the group by default
   React.useEffect(() => {
     const matchingGroup = navGroups.find((group) =>
       group.items.some((item) => item.url === pathname)
     );
     if (matchingGroup) {
-      setOpenGroup(matchingGroup.label); // Open the group if a match is found
+      setOpenGroup(matchingGroup.label);
     }
   }, [pathname]);
 
   const handleToggleGroup = (label: string) => {
-    setOpenGroup((prev) => (prev === label ? null : label)); // Toggle the group
+    setOpenGroup((prev) => (prev === label ? null : label));
   };
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher
-          teams={[{ name: "Aurum", plan: "Platform", logo: AudioWaveform }, { name: "Acme Corp.", plan: "Startup", logo: Globe }]}
+          teams={[
+            { name: "Aurum", plan: "Platform", logo: AudioWaveform },
+            { name: "Acme Corp.", plan: "Startup", logo: Globe },
+          ]}
         />
       </SidebarHeader>
 
@@ -112,7 +106,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuItem key={item.label}>
                 <Collapsible open={openGroup === item.label}>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton onClick={() => handleToggleGroup(item.label)}>
+                    <SidebarMenuButton
+                      onClick={() => handleToggleGroup(item.label)}
+                    >
                       {item.icon && <item.icon />}
                       <span className="text-lg">{item.label}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -121,15 +117,22 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   <CollapsibleContent className="mt-3">
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => {
-                        return(
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild className={`hover:bg-gradient-to-r from-[#000000] to-[#f89004] hover: !text-white ${subItem.url === pathname && 'bg-gradient-to-r from-[#000000] to-[#f89004]'}`}>
-                            <Link to={subItem.url} className="p-5">
-                              <span>{subItem.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      )})}
+                        return (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              className={`hover:bg-gradient-to-r from-[#000000] to-[#f89004] hover: !text-white ${
+                                subItem.url === pathname &&
+                                "bg-gradient-to-r from-[#000000] to-[#f89004]"
+                              }`}
+                            >
+                              <Link to={subItem.url} className="p-5">
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        );
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </Collapsible>

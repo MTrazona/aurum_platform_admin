@@ -1,0 +1,88 @@
+import useBuyRequests from "@/hooks/buy-request";
+import CustomDataTable from "@/components/custom-data-table";
+import { buyRequestColumnDefs } from "./column-def";
+import StatCard from "@/components/stat-card";
+import { useBuyRequestStats } from "@/utils/calculate-buy-requests";
+import { formatNumber } from "@/utils/format-helper";
+import BuyRequestDetailsModal from "@/components/dialog/buy-request";
+import Breadcrumb from "@/components/routes-bread-crumb";
+
+const BuyRequestsPage = () => {
+  const {
+    data = [],
+    isLoading,
+    selectedRequest,
+    isApproving,
+    isRejecting,
+    viewRequest,
+    setSelectedRequest,
+    approveRequest,
+    rejectRequest,
+  } = useBuyRequests();
+  const stats = useBuyRequestStats(data);
+
+  return (
+    <div className="p-4 space-y-6">
+        <Breadcrumb />
+      <h1 className="text-xl font-semibold text-white">Buy Requests</h1>
+
+      <div className="flex gap-4">
+        <StatCard
+          title="Total Buy Requests"
+          value={stats.total}
+          percentageChange={stats.totalStats.percentageChange}
+          description="vs. last 6 days"
+          bars={stats.totalStats.bars}
+          color="blue"
+        />
+        <StatCard
+          title="Approved"
+          value={`${stats.approvedStats.count}`}
+          percentageChange={stats.approvedStats.percentageChange}
+          description={`₱${formatNumber(
+            stats.totalStats.totalVolume
+          )} in fees`}
+          bars={stats.approvedStats.bars}
+          color="green"
+        />
+
+        <StatCard
+          title="Pending"
+          value={stats.pendingStats.count}
+          percentageChange={stats.pendingStats.percentageChange}
+          description="awaiting review"
+          bars={stats.pendingStats.bars}
+          color="orange"
+        />
+        <StatCard
+          title="Rejected"
+          value={stats.rejectedStats.count}
+          percentageChange={stats.rejectedStats.percentageChange}
+          description="denied"
+          bars={stats.rejectedStats.bars}
+          color="red"
+        />
+      </div>
+
+      <CustomDataTable
+        columnDefs={buyRequestColumnDefs(viewRequest)}
+        rowData={data}
+        loading={isLoading}
+        paginationPageSize={10}
+      />
+      {selectedRequest && (
+        <BuyRequestDetailsModal
+          data={selectedRequest}
+          open={!!selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          onApprove={(id) => approveRequest(id)}
+          onReject={(id, reason, other) => rejectRequest(id, reason, other)}
+          isApproving={isApproving}
+          isRejecting={isRejecting}
+        />
+      )}
+    </div>
+  );
+};
+
+export default BuyRequestsPage;

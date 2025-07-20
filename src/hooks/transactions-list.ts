@@ -1,5 +1,5 @@
 import { getAllUserTransactions } from "@/apis/transaction-list";
-import type { TransactionData } from "@/types/transaction.types";
+import type { TransactionsType } from "@/types/buy-request.types";
 import { useQuery } from "@tanstack/react-query";
 
 export default function useTransactionList() {
@@ -11,18 +11,19 @@ export default function useTransactionList() {
   return {
     all: data,
     buySell: data?.filter(
-      (v: TransactionData) =>
+      (v: TransactionsType) =>
         v.transactionType.toLowerCase() === "buy" ||
         v.transactionType.toLowerCase() === "sell"
     ),
     convert: data?.filter(
-      (v: TransactionData) => v.transactionType.toLowerCase() === "gold convert"
+      (v: TransactionsType) =>
+        v.transactionType.toLowerCase() === "gold convert"
     ),
     gae: data?.filter(
-      (v: TransactionData) =>
-        v.transactionType === "gae" ||
-        v.transactionType === "gae extra" ||
-        v.transactionType === "gae ph"
+      (v: TransactionsType) =>
+        v.transactionType.toLowerCase() === "gae" ||
+        v.transactionType.toLowerCase() === "gae extra" ||
+        v.transactionType.toLowerCase() === "gae ph"
     ),
     isLoading,
   };

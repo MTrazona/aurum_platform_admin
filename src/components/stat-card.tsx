@@ -4,12 +4,12 @@ import type { LucideIcon } from "lucide-react";
 
 type StatCardProps = {
   title: string;
-  value: number;
+  value: number | string;
   percentageChange: string;
   description: string;
   bars: number[];
   icon?: LucideIcon;
-  color?: "blue" | "green" | "red" | "orange" | "yellow" | "purple"; // Add more as needed
+  color?: "blue" | "green" | "red" | "orange" | "yellow" | "purple";
 };
 
 const colorMap = {
@@ -36,34 +36,42 @@ const StatCard: React.FC<StatCardProps> = ({
   const colorClasses = colorMap[color] || colorMap["blue"];
   const [borderColor, iconColor, barColor] = colorClasses.split(" ");
 
+  const maxBar = Math.max(...bars);
+
   return (
-    <div className={`bg-white rounded-xl shadow-sm p-5 py-3 w-72 ${borderColor} border`}>
-      <div className="flex flex-nowrap gap-2 items-center">
+    <div
+      className={`bg-white rounded-xl shadow-sm p-4 md:p-5 w-full max-w-xs sm:max-w-sm md:max-w-md ${borderColor} border overflow-hidden`}
+    >
+      <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div className="flex-1">
           <p className="text-sm text-gray-500 mb-1">{title}</p>
           <div className="flex items-center gap-2">
             {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
-            <span className="text-2xl font-semibold text-gray-800">
-              {value.toLocaleString()}
+            <span className="text-2xl font-semibold text-nowrap text-gray-800">
+              {value}
             </span>
           </div>
         </div>
-        <div className="flex items-end justify-between mb-2 flex-1">
-          <div className="flex items-end gap-1 h-16 flex-1">
+        <div className="flex items-end justify-between mb-1 md:mb-0 w-full md:w-1/4 overflow-hidden">
+          <div className="flex items-end gap-[2px] h-16 w-full overflow-hidden px-1">
             {bars.map((bar, idx) => (
               <div
                 key={idx}
                 className={`rounded-sm ${barColor}`}
                 style={{
-                  height: `${bar}px`,
+                  height: `${(bar / maxBar) * 100}%`,
                   flex: 1,
+                  maxWidth: "12px",
                 }}
               />
             ))}
           </div>
         </div>
       </div>
-      <div className={`border-t border-gray-200 mt-3 pt-2 flex items-center text-sm font-medium ${percentageColor}`}>
+
+      <div
+        className={`border-t border-gray-200 mt-3 pt-2 flex flex-wrap items-center text-sm font-medium ${percentageColor}`}
+      >
         {isPositive ? (
           <ArrowUpRight className="w-4 h-4 mr-1" />
         ) : (

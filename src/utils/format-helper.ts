@@ -37,22 +37,38 @@ function toTitleCase(str: string): string {
     .join(" ");
 }
 
-function formatNumber(
-  value: string | number,
-  decimalPlaces: number = 2
-): string {
+function formatNumber(value: string | number, decimalPlaces: number = 2): string {
   const number = parseFloat(value as string);
-  if (isNaN(number)) return value.toString();
+  if (isNaN(number)) return value?.toString();
 
-  const factor = Math.pow(10, decimalPlaces);
-  const truncated = Math.trunc(number * factor) / factor;
-  const strValue = truncated.toFixed(decimalPlaces);
+  const abs = Math.abs(number);
 
-  return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: decimalPlaces,
-    maximumFractionDigits: decimalPlaces,
-  }).format(Number(strValue));
+  if (abs < 1_000_000) {
+    // Show comma-separated numbers up to < 1M
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces,
+    });
+  }
+
+  // 1M and above — format using M or B
+  let divisor = 1;
+  let suffix = "";
+
+  if (abs >= 1_000_000_000) {
+    divisor = 1_000_000_000;
+    suffix = "B";
+  } else if (abs >= 1_000_000) {
+    divisor = 1_000_000;
+    suffix = "M";
+  }
+
+  const result = number / divisor;
+  return `${result.toFixed(decimalPlaces)}${suffix}`;
 }
+
+
+
 
 function PriceFormat(
   value: string | number,
@@ -63,7 +79,6 @@ function PriceFormat(
   let numericValue = Number(value);
   let currency = "";
 
-  // If details and key are provided, override value and currency
   if (details && key) {
     const extractedValue = details[key];
     numericValue = Number(extractedValue);
@@ -81,7 +96,8 @@ function PriceFormat(
       transactionType === "gae ph";
 
     if (isGaeType) {
-      return `${numericValue} ${numericValue > 1 ? "Units" : "Unit"}`;
+
+      return key === 'toValue' ? '--' : `${numericValue} ${numericValue > 1 ? "Units" : "Unit"}`;
     }
   }
 
@@ -90,7 +106,7 @@ function PriceFormat(
 
   return isQMGT
     ? `${formattedValue} QMGT`
-    : `${currency} ${formattedValue}`;
+    : `${currency ? currency : 'USDT'} ${formattedValue}`;
 }
 
 

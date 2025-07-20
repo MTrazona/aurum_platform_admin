@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useRef } from "react";
 import {
   AllCommunityModule,
   ModuleRegistry,
   themeQuartz,
+  type GridOptions,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 
@@ -13,14 +15,25 @@ interface AgGridTableProps {
   rowData: any[];
   paginationPageSize?: number;
   loading?: boolean;
+  gridOptions?: GridOptions;
+  className?: string;
+  onGridReady?: (params: any) => void;
+  gridRef?: React.RefObject<any>; // pass ref if needed externally
 }
 
 const CustomDataTable: React.FC<AgGridTableProps> = ({
   columnDefs,
   rowData,
-  paginationPageSize = 10,
-  loading,
+  paginationPageSize = 20,
+  loading = false,
+  gridOptions = {},
+  className = "",
+  gridRef,
+  onGridReady,
 }) => {
+  const internalGridRef = useRef<any>(null);
+  const activeRef = gridRef || internalGridRef;
+
   const myTheme = themeQuartz.withParams({
     backgroundColor: "#2F2F2F",
     browserColorScheme: "dark",
@@ -36,16 +49,29 @@ const CustomDataTable: React.FC<AgGridTableProps> = ({
     rowVerticalPaddingScale: 1.5,
   });
 
+  // Show/hide AG Grid loading overlay
+  useEffect(() => {
+    if (activeRef.current?.api) {
+      if (loading) {
+        activeRef.current.api.showLoadingOverlay();
+      } else {
+        activeRef.current.api.hideOverlay();
+      }
+    }
+  }, [loading, activeRef]);
+
   return (
-    <div>
+    <div className={`ag-theme-quartz ${className}`}>
       <AgGridReact
+        ref={activeRef}
         columnDefs={columnDefs}
         rowData={rowData}
-        theme={myTheme}
         pagination={true}
-        loading={loading}
         paginationPageSize={paginationPageSize}
         domLayout="autoHeight"
+        onGridReady={onGridReady}
+        {...gridOptions}
+        theme={myTheme}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { formatTransactionCode, PriceFormat } from "@/utils/format-helper";
+import StatusChip from "@/components/status-chip";
+import { dateStringFormatter, formatTransactionCode, PriceFormat } from "@/utils/format-helper";
 
 // column-defs/transaction-column-defs.ts
 export const transactionColumnDefs = [
@@ -20,20 +21,42 @@ export const transactionColumnDefs = [
         {PriceFormat(
           params.data.fromValue,
           params.data,
-          (params.data.fromCurrency === "QMGT" && params.data.transactionType.toLowerCase() !== 'buy') ||
-            params.data.toCurrency === "QMGT",
+          params.data.fromCurrency === "QMGT" &&
+            params.data.transactionType.toLowerCase() !== "buy",
           "fromValue"
         )}
       </p>
     ),
   },
-  { headerName: "To Value", field: "toValue" },
-  { headerName: "Gold Price", field: "goldPrice" },
-  { headerName: "USDT Rate", field: "usdRate" },
-  { headerName: "Status", field: "transactionStatus" },
+  {
+    headerName: "To Value",
+    field: "toValue",
+    cellRenderer: (params: any) => (
+      <p>
+        {PriceFormat(
+          params.data.toValue,
+          params.data,
+          params.data.fromCurrency === "QMGT" &&
+            params.data.transactionType.toLowerCase() !== "buy",
+          "toValue"
+        )}
+      </p>
+    ),
+  },
+  {
+    headerName: "Gold Price",
+    field: "goldPrice",
+    cellRenderer: (params: any) => PriceFormat(params.data.goldPrice),
+  },
+  {
+    headerName: "USDT Rate",
+    field: "usdRate",
+    cellRenderer: (params: any) => PriceFormat(params.data.goldPrice),
+  },
+  { headerName: "Status", field: "transactionStatus",cellRenderer:(params:any) =><StatusChip status={params.data.transactionStatus} /> },
   {
     headerName: "Created At",
     field: "createdAt",
-    valueFormatter: (params: any) => new Date(params.value).toLocaleString(),
+    valueFormatter: (params: any) => dateStringFormatter(params.value),
   },
 ];

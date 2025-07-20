@@ -75,7 +75,7 @@ export default function UsersPage() {
       <CustomDataTable
         columnDefs={usersColumnDefs}
         rowData={users}
-        paginationPageSize={10}
+        paginationPageSize={20}
         loading={isLoading}
       />
       <WalletAddressModal />
