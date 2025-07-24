@@ -3,7 +3,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import CustomDataTable from "@/components/custom-data-table";
-import { gaeRequestColumnDefs } from "./column-def";
 import type { TransactionsType } from "@/types/buy-request.types";
 import { Label } from "@/components/ui/label";
 import {
@@ -14,17 +13,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { transactionColumnDefs } from "./column-def";
+import { Button } from "@/components/ui/button";
 
-interface GAEDataTableProps {
-  gae: TransactionsType[];
+interface TransactionsDataTableProps {
+  transactions: TransactionsType[];
   isLoading: boolean;
-  viewRequest: (value: TransactionsType) => void;
 }
 
-const GAEDataTable: React.FC<GAEDataTableProps> = ({
-  gae,
+const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
+  transactions,
   isLoading,
-  viewRequest,
 }) => {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [searchText, setSearchText] = useState<string>("");
@@ -81,8 +80,11 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
+              <SelectItem value="buy">Buy</SelectItem>
+              <SelectItem value="sell">Sell</SelectItem>
+              <SelectItem value="gca">GCA</SelectItem>
               <SelectItem value="gae">GAE</SelectItem>
-              <SelectItem value="gae extra">GAE Extra</SelectItem>
+              <SelectItem value="gae extra">GAE EXTRA</SelectItem>
               <SelectItem value="gae ph">GAE PH</SelectItem>
             </SelectContent>
           </Select>
@@ -100,11 +102,28 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
             onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => {
+              setSelectedType("all");
+              setSearchText("");
+              if (gridParamsRef.current) {
+                const api = gridParamsRef.current.api;
+                api.setFilterModel(null);
+                api.setGridOption("quickFilterText", "");
+                api.onFilterChanged();
+              }
+            }}
+            className="bg-white text-black cursor-border border border-gray-300 hover:bg-gray-100"
+          >
+            Reset Filters
+          </Button>
+        </div>
       </div>
 
       <CustomDataTable
-        columnDefs={gaeRequestColumnDefs(viewRequest)}
-        rowData={gae}
+        columnDefs={transactionColumnDefs}
+        rowData={transactions}
         loading={isLoading}
         onGridReady={handleGridReady}
       />
@@ -112,4 +131,4 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
   );
 };
 
-export default GAEDataTable;
+export default TransactionsDataTable;

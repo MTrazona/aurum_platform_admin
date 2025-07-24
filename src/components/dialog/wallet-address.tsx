@@ -10,15 +10,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useStore from "@/zustand/store/store";
 
-export function WalletAddressModal() {
-  const { user, closeWalletAddressModal } = useStore();
+type WalletAddressModalProps = {
+  isOpen: boolean;
+  walletAddress: string;
+  onClose: () => void;
+};
 
-  if (!user.isWalletAddressOpen) return null;
+export function WalletAddressModal({
+  isOpen,
+  walletAddress,
+  onClose,
+}: WalletAddressModalProps) {
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={true} onOpenChange={(open) => !open && closeWalletAddressModal()}>
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Wallet Address</DialogTitle>
@@ -32,13 +39,13 @@ export function WalletAddressModal() {
             <Label htmlFor="wallet" className="sr-only">
               Wallet Address
             </Label>
-            <Input id="wallet" value={user.walletAddress} readOnly />
+            <Input id="wallet" value={walletAddress} readOnly />
           </div>
         </div>
 
         <DialogFooter className="sm:justify-start">
           <DialogClose asChild>
-            <Button type="button" onClick={closeWalletAddressModal} variant="secondary">
+            <Button className="cursor-pointer" type="button" onClick={onClose} variant="secondary">
               Close
             </Button>
           </DialogClose>
@@ -47,3 +54,4 @@ export function WalletAddressModal() {
     </Dialog>
   );
 }
+

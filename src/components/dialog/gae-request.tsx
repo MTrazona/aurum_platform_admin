@@ -1,23 +1,20 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import type { TransactionsType } from "@/types/buy-request.types";
 import { dateStringFormatter } from "@/utils/format-helper";
 import { Download } from "lucide-react";
 import { useState } from "react";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import {
-    TransformComponent,
-    TransformWrapper
-} from "react-zoom-pan-pinch";
-import {
-    ConversionDisplay,
-    GAEDisplay,
-    QMGTDisplay,
-    UnitValueDisplay
+  ConversionDisplay,
+  GAEDisplay,
+  QMGTDisplay,
+  UnitValueDisplay,
 } from "../features/price-display";
 import { ZoomControls } from "../features/zoom-controls";
 import StatusChip from "../status-chip";
@@ -34,7 +31,6 @@ interface Props {
   isApproving?: boolean;
   isRejecting?: boolean;
 }
-
 
 const GAERequestDetailsModal: React.FC<Props> = ({
   data,
@@ -122,7 +118,6 @@ const GAERequestDetailsModal: React.FC<Props> = ({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            {/* Section 1 */}
             <div className="space-y-2">
               <p>
                 <strong>Customer Name:</strong> {data.customer?.firstName}{" "}
@@ -145,7 +140,6 @@ const GAERequestDetailsModal: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* Section 2 */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <strong>Down Payment:</strong>{" "}
@@ -181,7 +175,8 @@ const GAERequestDetailsModal: React.FC<Props> = ({
                 />
               </div>
               <p>
-                <strong>Date Submitted:</strong> {dateStringFormatter(data.trDate)}
+                <strong>Date Submitted:</strong>{" "}
+                {dateStringFormatter(data.trDate)}
               </p>
             </div>
           </div>
@@ -281,8 +276,6 @@ const GAERequestDetailsModal: React.FC<Props> = ({
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Reject reason dialog */}
       <RejectReasonDialog
         open={showRejectDialog}
         onCancel={() => setShowRejectDialog(false)}

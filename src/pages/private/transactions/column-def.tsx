@@ -1,21 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import StatusChip from "@/components/status-chip";
-import { dateStringFormatter, formatTransactionCode, PriceFormat } from "@/utils/format-helper";
+import {
+  dateStringFormatter,
+  formatTransactionCode,
+  PriceFormat,
+} from "@/utils/format-helper";
 
-// column-defs/transaction-column-defs.ts
 export const transactionColumnDefs = [
   {
     headerName: "Transaction Code",
     field: "transactionCode",
+    sortable: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
     cellRenderer: (params: any) => (
       <p>{formatTransactionCode(params.data.transactionCode)}</p>
     ),
   },
-  { headerName: "Transaction Type", field: "transactionType" },
+  {
+    headerName: "Transaction Type",
+    field: "transactionType",
+    sortable: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+  },
   {
     headerName: "From Value",
     field: "fromValue",
+    sortable: true,
+    filter: "agNumberColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
     cellRenderer: (params: any) => (
       <p>
         {PriceFormat(
@@ -31,6 +46,9 @@ export const transactionColumnDefs = [
   {
     headerName: "To Value",
     field: "toValue",
+    sortable: true,
+    filter: "agNumberColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
     cellRenderer: (params: any) => (
       <p>
         {PriceFormat(
@@ -46,17 +64,36 @@ export const transactionColumnDefs = [
   {
     headerName: "Gold Price",
     field: "goldPrice",
+    sortable: true,
+    filter: "agNumberColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
     cellRenderer: (params: any) => PriceFormat(params.data.goldPrice),
   },
   {
     headerName: "USDT Rate",
     field: "usdRate",
-    cellRenderer: (params: any) => PriceFormat(params.data.goldPrice),
+    sortable: true,
+    filter: "agNumberColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+    cellRenderer: (params: any) => PriceFormat(params.data.usdRate),
   },
-  { headerName: "Status", field: "transactionStatus",cellRenderer:(params:any) =><StatusChip status={params.data.transactionStatus} /> },
+  {
+    headerName: "Status",
+    field: "transactionStatus",
+    sortable: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+    cellRenderer: (params: any) => (
+      <StatusChip status={params.data.transactionStatus} />
+    ),
+  },
   {
     headerName: "Created At",
     field: "createdAt",
+    sortable: true,
+    filter: "agDateColumnFilter",
+    cellDataType: "dateTime",
+    filterParams: { buttons: ["reset", "apply"] },
     valueFormatter: (params: any) => dateStringFormatter(params.value),
   },
 ];

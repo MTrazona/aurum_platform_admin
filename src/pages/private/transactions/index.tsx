@@ -1,10 +1,9 @@
-import CustomDataTable from "@/components/custom-data-table";
+import Breadcrumb from "@/components/routes-bread-crumb";
 import StatCard from "@/components/stat-card";
 import useTransactionList from "@/hooks/transactions-list";
 import { useTransactionStats } from "@/utils/calculate-transaction-stat";
-import { transactionColumnDefs } from "./column-def";
 import { PriceFormat } from "@/utils/format-helper";
-import Breadcrumb from "@/components/routes-bread-crumb";
+import TransactionsDataTable from "./table";
 
 const TransactionsPage = () => {
   const { all = [], isLoading } = useTransactionList();
@@ -52,12 +51,9 @@ const TransactionsPage = () => {
           color="purple"
         />
       </div>
-
-      <CustomDataTable
-        columnDefs={transactionColumnDefs}
-        rowData={all}
-        loading={isLoading}
-        paginationPageSize={10}
+      <TransactionsDataTable
+        isLoading={isLoading}
+        transactions={all}
       />
     </div>
   );

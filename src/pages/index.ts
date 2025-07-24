@@ -5,7 +5,9 @@ import TransactionsPage from "./private/transactions";
 import BankRequestsPage from "./private/bank-requests";
 import BuyRequestsPage from "./private/buy-requests";
 import GCARequestsPage from "./private/gca-requests";
-
+import RankUpRequestsPage from "./private/rank-up-request";
+import GAERequestsPage from "./private/gae-requests";
+import USDAURequestsPage from "./private/usdau-requests";
 
 export {
   SigninPage,
@@ -14,5 +16,8 @@ export {
   TransactionsPage,
   BankRequestsPage,
   BuyRequestsPage,
-  GCARequestsPage
+  GCARequestsPage,
+  GAERequestsPage,
+  RankUpRequestsPage,
+  USDAURequestsPage
 };

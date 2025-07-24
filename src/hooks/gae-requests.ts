@@ -10,7 +10,7 @@ export default function useGaeRequests() {
   const viewRequest = (request: TransactionsType) => {
     setSelectedRequest(request);
   };
-  const releaseGCA = async({
+  const releaseGAE = async({
     releaseDate,
     file,
   }: {
@@ -19,12 +19,13 @@ export default function useGaeRequests() {
   }) => {
     console.log(releaseDate,file)
   }
+  const list = gae?.filter((v) => v.fromCurrency.toLowerCase() === "php") || [];
   return {
-    gae,
+    gae:list,
     selectedRequest,
     isLoading,
     setSelectedRequest,
     viewRequest,
-    releaseGCA
+    releaseGAE
   };
 }

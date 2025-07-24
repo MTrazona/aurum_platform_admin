@@ -18,7 +18,7 @@ interface AgGridTableProps {
   gridOptions?: GridOptions;
   className?: string;
   onGridReady?: (params: any) => void;
-  gridRef?: React.RefObject<any>; // pass ref if needed externally
+  gridRef?: React.RefObject<any>;
 }
 
 const CustomDataTable: React.FC<AgGridTableProps> = ({

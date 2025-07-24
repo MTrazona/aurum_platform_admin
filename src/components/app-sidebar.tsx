@@ -56,21 +56,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
-      label: "Rewards & Rank",
-      icon: AudioWaveform,
-      items: [
-        { title: "QMGT +", url: "/b-request" },
-        { title: "Redeem Reward Request", url: "/convert-request" },
-        { title: "Rankup Request", url: "/qmgt-plus" },
-        { title: "Direct Deposit Reward", url: "/redeem-reward" },
-      ],
-    },
-    {
       label: "Other",
       icon: Building,
       items: [
-        { title: "Remittance Request", url: "/rankup-request", icon: Building },
-        { title: "USDAU Request", url: "/rankup-request", icon: Building },
+        { title: "USDAU Request", url: urls.usdauReq, icon: Building },
+          { title: "Rankup Request", url: urls.rankReq },
       ],
     },
   ];

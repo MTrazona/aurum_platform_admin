@@ -1,11 +1,10 @@
-import useBuyRequests from "@/hooks/buy-request";
-import CustomDataTable from "@/components/custom-data-table";
-import { buyRequestColumnDefs } from "./column-def";
-import StatCard from "@/components/stat-card";
-import { useBuyRequestStats } from "@/utils/calculate-buy-requests";
-import { formatNumber } from "@/utils/format-helper";
 import BuyRequestDetailsModal from "@/components/dialog/buy-request";
 import Breadcrumb from "@/components/routes-bread-crumb";
+import StatCard from "@/components/stat-card";
+import useBuyRequests from "@/hooks/buy-request";
+import { useTransactionRequestStats } from "@/utils/calculate-buy-requests";
+import { formatNumber } from "@/utils/format-helper";
+import BuyDataTable from "./table";
 
 const BuyRequestsPage = () => {
   const {
@@ -19,11 +18,11 @@ const BuyRequestsPage = () => {
     approveRequest,
     rejectRequest,
   } = useBuyRequests();
-  const stats = useBuyRequestStats(data);
+  const stats = useTransactionRequestStats(data);
 
   return (
     <div className="p-4 space-y-6">
-        <Breadcrumb />
+      <Breadcrumb />
       <h1 className="text-xl font-semibold text-white">Buy Requests</h1>
 
       <div className="flex gap-4">
@@ -39,9 +38,7 @@ const BuyRequestsPage = () => {
           title="Approved"
           value={`${stats.approvedStats.count}`}
           percentageChange={stats.approvedStats.percentageChange}
-          description={`₱${formatNumber(
-            stats.totalStats.totalVolume
-          )} in fees`}
+          description={`₱${formatNumber(stats.totalStats.totalVolume)} in fees`}
           bars={stats.approvedStats.bars}
           color="green"
         />
@@ -63,12 +60,10 @@ const BuyRequestsPage = () => {
           color="red"
         />
       </div>
-
-      <CustomDataTable
-        columnDefs={buyRequestColumnDefs(viewRequest)}
-        rowData={data}
-        loading={isLoading}
-        paginationPageSize={10}
+      <BuyDataTable
+        buy={data}
+        isLoading={isLoading}
+        viewRequest={viewRequest}
       />
       {selectedRequest && (
         <BuyRequestDetailsModal

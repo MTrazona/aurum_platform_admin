@@ -1,4 +1,4 @@
-import type { TransactionData } from "@/types/transaction.types";
+import type { TransactionsType } from "@/types/buy-request.types";
 import {
   isSameMonth,
   parseISO,
@@ -6,12 +6,12 @@ import {
 } from "date-fns";
 import { useMemo } from "react";
 
-export function useTransactionStats(transactions: TransactionData[]) {
+export function useTransactionStats(transactions: TransactionsType[]) {
   return useMemo(() => {
     const monthsBack = 6;
     const now = new Date();
 
-    const generateMonthlyData = (getValue: (tx: TransactionData) => number) => {
+    const generateMonthlyData = (getValue: (tx: TransactionsType) => number) => {
       const monthly: number[] = [];
 
       for (let i = monthsBack - 1; i >= 0; i--) {

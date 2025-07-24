@@ -1,10 +1,9 @@
-import CustomDataTable from "@/components/custom-data-table";
 import BankRequestDetailsModal from "@/components/dialog/bank-request";
+import Breadcrumb from "@/components/routes-bread-crumb";
 import StatCard from "@/components/stat-card";
 import useBankRequestList from "@/hooks/bank-requests";
 import { useBankRequestStats } from "@/utils/calculate-bank-requests";
-import { bankRequestColumnDefs } from "./column-def";
-import Breadcrumb from "@/components/routes-bread-crumb";
+import BankRequestDataTable from "./table";
 
 const BankRequestsPage = () => {
   const {
@@ -22,7 +21,7 @@ const BankRequestsPage = () => {
 
   return (
     <div className="p-4 space-y-6">
-       <Breadcrumb />
+      <Breadcrumb />
       <h1 className="text-xl font-semibold text-white">Bank Requests</h1>
       <div className="flex gap-4 items-center">
         <StatCard
@@ -59,11 +58,10 @@ const BankRequestsPage = () => {
         />
       </div>
 
-      <CustomDataTable
-        columnDefs={bankRequestColumnDefs(viewRequest)}
-        rowData={data}
-        loading={isLoading}
-        paginationPageSize={10}
+      <BankRequestDataTable
+        banks={data}
+        isLoading={isLoading}
+        viewRequest={viewRequest}
       />
       {selectedRequest && (
         <BankRequestDetailsModal

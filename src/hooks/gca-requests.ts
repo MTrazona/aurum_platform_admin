@@ -19,8 +19,9 @@ export default function useGcaRequests() {
   }) => {
     console.log(releaseDate,file)
   }
+  const list = convert?.filter((v) => v.fromCurrency.toLowerCase() === "php") || [];
   return {
-    convert,
+    convert: list,
     selectedRequest,
     isLoading,
     setSelectedRequest,

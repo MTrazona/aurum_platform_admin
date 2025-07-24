@@ -1,4 +1,4 @@
-import type { BuyTransaction } from "@/types/buy-request.types";
+import type { TransactionsType } from "@/types/buy-request.types";
 
 type StatTrend = {
   count: number;
@@ -8,17 +8,38 @@ type StatTrend = {
 };
 
 function formatMonth(date: Date): string {
-  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}`;
+  return `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}`;
 }
 
-export function useBuyRequestStats(data: BuyTransaction[]) {
+export function useTransactionRequestStats(data: TransactionsType[]) {
   const total = data.length;
 
-  const approved = data.filter((d) => d.transactionStatus === "Completed");
-  const pending = data.filter((d) => d.transactionStatus === "Pending");
-  const rejected = data.filter((d) => d.transactionStatus === "Rejected");
+  const statusBuckets = {
+    approved: [] as typeof data,
+    pending: [] as typeof data,
+    rejected: [] as typeof data,
+  };
 
-  const makeBarsAndVolume = (filtered: BuyTransaction[]) => {
+  data.forEach((d) => {
+    switch (d.transactionStatus) {
+      case "Open":
+      case "Completed":
+        statusBuckets.approved.push(d);
+        break;
+      case "Rejected":
+        statusBuckets.rejected.push(d);
+        break;
+      default:
+        statusBuckets.pending.push(d);
+        break;
+    }
+  });
+
+  const { approved, pending, rejected } = statusBuckets;
+
+  const makeBarsAndVolume = (filtered: TransactionsType[]) => {
     const map = new Map<string, number>();
     let volume = 0;
 
@@ -41,7 +62,7 @@ export function useBuyRequestStats(data: BuyTransaction[]) {
   };
 
   const calcStats = (
-    filtered: BuyTransaction[],
+    filtered: TransactionsType[],
     bars: number[],
     volume: number
   ): StatTrend => {
@@ -49,7 +70,12 @@ export function useBuyRequestStats(data: BuyTransaction[]) {
     const last = bars.at(-1) || 0;
     const percentageChange =
       prev === 0 ? "+0%" : `${(((last - prev) / prev) * 100).toFixed(2)}%`;
-    return { count: filtered.length, percentageChange, bars, totalVolume: volume };
+    return {
+      count: filtered.length,
+      percentageChange,
+      bars,
+      totalVolume: volume,
+    };
   };
 
   const all = makeBarsAndVolume(data);

@@ -3,8 +3,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import CustomDataTable from "@/components/custom-data-table";
-import { gaeRequestColumnDefs } from "./column-def";
-import type { TransactionsType } from "@/types/buy-request.types";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -14,15 +12,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { bankRequestColumnDefs } from "./column-def";
+import type { BankAccountVerification } from "@/types/bank-request.types";
 
-interface GAEDataTableProps {
-  gae: TransactionsType[];
+interface BankRequestDataTableProps {
+  banks: BankAccountVerification[];
   isLoading: boolean;
-  viewRequest: (value: TransactionsType) => void;
+  viewRequest: (value: BankAccountVerification) => void;
 }
 
-const GAEDataTable: React.FC<GAEDataTableProps> = ({
-  gae,
+const BankRequestDataTable: React.FC<BankRequestDataTableProps> = ({
+  banks,
   isLoading,
   viewRequest,
 }) => {
@@ -51,7 +51,7 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
       api.setFilterModel(null);
     } else {
       api.setFilterModel({
-        transactionType: {
+        statusOfVerification: {
           type: "equals",
           filter: value,
         },
@@ -70,7 +70,7 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <Label htmlFor="type-filter" className="text-white">
-            Filter by Transaction Type:
+            Filter by Transaction Status:
           </Label>
           <Select value={selectedType} onValueChange={handleTypeChange}>
             <SelectTrigger
@@ -81,9 +81,9 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="gae">GAE</SelectItem>
-              <SelectItem value="gae extra">GAE Extra</SelectItem>
-              <SelectItem value="gae ph">GAE PH</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Approved">Approved</SelectItem>
+              <SelectItem value="Rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -103,8 +103,8 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
       </div>
 
       <CustomDataTable
-        columnDefs={gaeRequestColumnDefs(viewRequest)}
-        rowData={gae}
+        columnDefs={bankRequestColumnDefs(viewRequest)}
+        rowData={banks}
         loading={isLoading}
         onGridReady={handleGridReady}
       />
@@ -112,4 +112,4 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
   );
 };
 
-export default GAEDataTable;
+export default BankRequestDataTable;

@@ -3,12 +3,14 @@ import {
   BankRequestsPage,
   BuyRequestsPage,
   DashboardPage,
+  GAERequestsPage,
   GCARequestsPage,
+  RankUpRequestsPage,
   SigninPage,
   TransactionsPage,
+  USDAURequestsPage,
   UsersPage,
 } from "@/pages";
-import GAERequestsPage from "@/pages/private/gae-requests";
 
 export const urls = {
   login: "/",
@@ -19,6 +21,8 @@ export const urls = {
   buyReq: "/buy-requests",
   gcaReq: "/gca-requests",
   gaeReq: "/gae-requests",
+  rankReq: "/rank-up-requests",
+  usdauReq: "/usdau-requests",
 };
 export const routeList = {
   public: {
@@ -35,6 +39,8 @@ export const routeList = {
       { path: urls.buyReq, element: <BuyRequestsPage /> },
       { path: urls.gcaReq, element: <GCARequestsPage /> },
       { path: urls.gaeReq, element: <GAERequestsPage /> },
+      { path: urls.rankReq, element: <RankUpRequestsPage /> },
+      { path: urls.usdauReq, element: <USDAURequestsPage /> },
     ],
   },
 };

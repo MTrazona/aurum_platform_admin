@@ -1,15 +1,23 @@
-import CustomDataTable from "@/components/custom-data-table";
-import useUsersHooks from "@/hooks/use-users";
-import { usersColumnDefs } from "./column-def";
 import StatCard from "@/components/stat-card";
+import useUsersHooks from "@/hooks/use-users";
 import { calculateUserGrowth } from "@/utils/calculate-user-growth";
 
-import { Users, ShieldCheck, Ban, Clock3 } from "lucide-react";
-import Breadcrumb from "@/components/routes-bread-crumb";
 import { WalletAddressModal } from "@/components/dialog/wallet-address";
+import Breadcrumb from "@/components/routes-bread-crumb";
+import { Ban, Clock3, ShieldCheck, Users } from "lucide-react";
+import UsersDataTable from "./table";
 
 export default function UsersPage() {
-  const { data: users = [], isLoading } = useUsersHooks();
+  const {
+    data: users = [],
+    isLoading,
+    walletAddress,
+    isWalletAddressOpen,
+    fetchWalletAddress,
+    handleBlockedUnblock,
+    handleLockedUnlock,
+    closeWalletAddressModal,
+  } = useUsersHooks();
 
   const verifiedUsers = users.filter(
     (user) => user.kycVerified?.toUpperCase() === "VERIFIED"
@@ -71,14 +79,18 @@ export default function UsersPage() {
           color="orange"
         />
       </div>
-
-      <CustomDataTable
-        columnDefs={usersColumnDefs}
-        rowData={users}
-        paginationPageSize={20}
-        loading={isLoading}
+      <UsersDataTable
+        isLoading={isLoading}
+        users={users}
+        fetchWalletAddress={fetchWalletAddress}
+        handleBlockedUnblock={handleBlockedUnblock}
+        handleLockedUnlock={handleLockedUnlock}
       />
-      <WalletAddressModal />
+      <WalletAddressModal
+        isOpen={isWalletAddressOpen}
+        walletAddress={walletAddress}
+        onClose={closeWalletAddressModal}
+      />
     </div>
   );
 }

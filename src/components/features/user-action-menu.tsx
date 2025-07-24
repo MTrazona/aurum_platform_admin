@@ -6,24 +6,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/types/customer.types";
-import useStore from "@/zustand/store/store";
-import { MoreVertical, Loader2 } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 
 type UserActionMenuProps = {
   userData: User;
+  fetchWalletAddress: (userHash: string) => Promise<void>;
+  handleBlockedUnblock: (userHash: string, status: boolean) => Promise<void>;
+  handleLockedUnlock: (userHash: string, status: boolean) => Promise<void>;
 };
 
-export default function UserActionMenu({ userData }: UserActionMenuProps) {
-  const {
-    fetchWalletAddress,
-    user,
-    handleBlockedUnblock,
-    handleLockedUnlock,
-  } = useStore();
-
+export default function UserActionMenu({
+  userData,
+  fetchWalletAddress,
+  handleBlockedUnblock,
+  handleLockedUnlock,
+}: UserActionMenuProps) {
   const userId = userData?.userHash;
-  const isRowLoading = user?.rowLoading?.[userId] ?? false;
-  const isWalletLoading = user?.isLoading ?? false;
   const { blocked, login_attempt } = userData;
   const isLocked = login_attempt?.loginStatus === "Locked";
 
@@ -38,7 +36,6 @@ export default function UserActionMenu({ userData }: UserActionMenuProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-
         {/* Get Wallet Address */}
         <DropdownMenuItem
           className="cursor-pointer"
@@ -46,49 +43,30 @@ export default function UserActionMenu({ userData }: UserActionMenuProps) {
             e.preventDefault();
             fetchWalletAddress(userData.userHash);
           }}
-          disabled={isWalletLoading}
         >
-          {isWalletLoading ? (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading...
-            </div>
-          ) : (
-            "Get Wallet Address"
-          )}
+          Get Wallet Address
         </DropdownMenuItem>
 
         {/* Lock/Unlock User */}
-        {isLocked && <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            if (userId && !isRowLoading) handleLockedUnlock(userId, true);
-          }}
-          disabled={isRowLoading || !isLocked}
-        >
-          <div className="flex items-center gap-2">
-            {isRowLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : null}
-            {lockBtnText}
-          </div>
-        </DropdownMenuItem>}
+        {isLocked && (
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              if (userId) handleLockedUnlock(userId, true);
+            }}
+          >
+            <div className="flex items-center gap-2">{lockBtnText}</div>
+          </DropdownMenuItem>
+        )}
 
         {/* Block/Unblock User */}
         <DropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
-            if (userId && !isRowLoading)
-              handleBlockedUnblock(userId, blocked); 
+            if (userId) handleBlockedUnblock(userId, blocked);
           }}
-          disabled={isRowLoading}
         >
-          <div className="flex items-center gap-2">
-            {isRowLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : null}
-            {blockBtnText}
-          </div>
+          <div className="flex items-center gap-2">{blockBtnText}</div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

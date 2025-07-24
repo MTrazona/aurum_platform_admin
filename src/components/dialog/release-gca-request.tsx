@@ -15,13 +15,13 @@ import {
   AlertDialogAction
 } from "@/components/ui/alert-dialog";
 
-interface ReleaseGCARequestModalProps {
+interface ReleaseRequestModalProps {
   open: boolean;
   onClose: () => void;
   onSubmitForm: (data: { releaseDate: Date; file: File }) => Promise<void>;
 }
 
-const ReleaseGCARequestModal: React.FC<ReleaseGCARequestModalProps> = ({ open, onClose, onSubmitForm }) => {
+const ReleaseRequestModal: React.FC<ReleaseRequestModalProps> = ({ open, onClose, onSubmitForm }) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -149,4 +149,4 @@ const ReleaseGCARequestModal: React.FC<ReleaseGCARequestModalProps> = ({ open, o
   );
 };
 
-export default ReleaseGCARequestModal;
+export default ReleaseRequestModal;
