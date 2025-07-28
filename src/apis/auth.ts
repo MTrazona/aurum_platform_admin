@@ -25,3 +25,17 @@ export const signinAuthentication = async (
     throw new Error("An error occurred during authentication.");
   }
 };
+
+export const fetchCurrentUser = async() => {
+  try {
+    const response = await api.get('/getInfo')
+    return response.data;
+  } catch (error) {
+        if (error instanceof Error) {
+      console.error("getUsdtValueAPI Error:", error.message);
+    } else {
+      console.error("getUsdtValueAPI Unknown error", error);
+    }
+    throw new Error("An error occurred during authentication.");
+  }
+}

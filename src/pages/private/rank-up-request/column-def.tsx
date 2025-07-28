@@ -1,6 +1,11 @@
 import { dateStringFormatter } from "@/utils/format-helper";
 import type { RankPromotionRequest } from "@/types/promotion-request.types";
-import type { ColDef, ValueGetterParams, ValueFormatterParams } from "ag-grid-community";
+import type {
+  ColDef,
+  ICellRendererParams,
+  ValueGetterParams,
+  ValueFormatterParams,
+} from "ag-grid-community";
 import StatusChip from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 
@@ -34,16 +39,15 @@ export const rankPromotionColumnDefs = (
   },
   {
     headerName: "Total Sales",
-    valueGetter: (params: ValueGetterParams<RankPromotionRequest>) =>
-      params.data?.promotionDetails?.totalSales ?? 0,
+    valueGetter: ({ data }: ValueGetterParams<RankPromotionRequest>) =>
+      data?.promotionDetails?.totalSales ?? 0,
     sortable: true,
     filter: "agNumberColumnFilter",
-    
   },
   {
     headerName: "Total Referrals",
-    valueGetter: (params: ValueGetterParams<RankPromotionRequest>) =>
-      params.data?.promotionDetails?.totalReferrals ?? 0,
+    valueGetter: ({ data }: ValueGetterParams<RankPromotionRequest>) =>
+      data?.promotionDetails?.totalReferrals ?? 0,
     sortable: true,
     filter: "agNumberColumnFilter",
   },
@@ -52,7 +56,8 @@ export const rankPromotionColumnDefs = (
     field: "requestStatus",
     sortable: true,
     filter: "agTextColumnFilter",
-    cellRenderer: ({ value }: { value: string }) => <StatusChip status={value} />,
+    cellRenderer: ({ value }: ICellRendererParams<RankPromotionRequest>) =>
+      value ? <StatusChip status={value} /> : null,
   },
   {
     headerName: "Date Requested",
@@ -60,20 +65,21 @@ export const rankPromotionColumnDefs = (
     sortable: true,
     filter: "agDateColumnFilter",
     cellDataType: "dateTime",
-    valueFormatter: (params: ValueFormatterParams<RankPromotionRequest>) =>
-      dateStringFormatter(params.value),
+    valueFormatter: ({ value }: ValueFormatterParams<RankPromotionRequest>) =>
+      value ? dateStringFormatter(value) : "",
   },
   {
     headerName: "Actions",
     pinned: "right",
     width: 120,
-    cellRenderer: ({ data }: { data: RankPromotionRequest }) => (
-      <Button
-        className="px-3 py-1 bg-primary w-full cursor-pointer text-white rounded hover:opacity-90"
-        onClick={() => onView(data)}
-      >
-        View
-      </Button>
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<RankPromotionRequest>) =>
+      data ? (
+        <Button
+          className="px-3 py-1 bg-primary w-full cursor-pointer text-white rounded hover:opacity-90"
+          onClick={() => onView(data)}
+        >
+          View
+        </Button>
+      ) : null,
   },
 ];

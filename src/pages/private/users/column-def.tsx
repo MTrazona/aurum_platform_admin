@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ColDef, ICellRendererParams } from "ag-grid-community";
 import UserActionMenu from "@/components/features/user-action-menu";
 import StatusChip from "@/components/status-chip";
 import { dateStringFormatter } from "@/utils/format-helper";
+import type { User } from "@/types/customer.types";
 
 export const usersColumnDefs = ({
   fetchWalletAddress,
@@ -11,7 +12,7 @@ export const usersColumnDefs = ({
   fetchWalletAddress: (userHash: string) => Promise<void>;
   handleBlockedUnblock: (userHash: string, status: boolean) => Promise<void>;
   handleLockedUnlock: (userHash: string, status: boolean) => Promise<void>;
-}) => [
+}): ColDef<User>[] => [
   {
     headerName: "ID",
     field: "id",
@@ -60,20 +61,20 @@ export const usersColumnDefs = ({
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
     sortable: true,
-    cellRenderer: (params: any) => (
-      <StatusChip status={params.data.kycVerified} />
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<User>) =>
+      data ? <StatusChip status={data.kycVerified} /> : null,
   },
   {
     headerName: "Account Status",
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
     sortable: true,
-    cellRenderer: (params: any) => {
+    cellRenderer: ({ data }: ICellRendererParams<User>) => {
+      if (!data) return null;
       const status =
-        params.data?.login_attempt?.loginStatus !== "Active"
+        data.login_attempt?.loginStatus !== "Active"
           ? "Locked"
-          : params.data.blocked === true
+          : data.blocked
           ? "Blocked"
           : "Active";
       return <StatusChip status={status} />;
@@ -86,23 +87,22 @@ export const usersColumnDefs = ({
     cellDataType: "dateTime",
     filterParams: { buttons: ["reset", "apply"] },
     sortable: true,
-    cellRenderer: (params: any) => (
-      <p>{dateStringFormatter(params.data?.createdAt)}</p>
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<User>) =>
+      data ? <p>{dateStringFormatter(data.createdAt)}</p> : null,
   },
   {
     headerName: "Action",
-    field: "action",
     width: 80,
     pinned: "right",
     sortable: false,
-    cellRenderer: (params: any) => (
-      <UserActionMenu
-        userData={params.data}
-        fetchWalletAddress={fetchWalletAddress}
-        handleBlockedUnblock={handleBlockedUnblock}
-        handleLockedUnlock={handleLockedUnlock}
-      />
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<User>) =>
+      data ? (
+        <UserActionMenu
+          userData={data}
+          fetchWalletAddress={fetchWalletAddress}
+          handleBlockedUnblock={handleBlockedUnblock}
+          handleLockedUnlock={handleLockedUnlock}
+        />
+      ) : null,
   },
 ];

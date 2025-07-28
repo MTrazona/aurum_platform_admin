@@ -25,6 +25,8 @@ export interface LoginAttempt {
 }
 
 export interface Customer {
+  email: string;
+  username: string;
   firstName: string;
   lastName: string;
 }

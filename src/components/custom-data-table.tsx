@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef } from "react";
 import {
   AllCommunityModule,
   ModuleRegistry,
   themeQuartz,
   type GridOptions,
+  type Theme,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
+import React, { useEffect, useMemo, useRef } from "react";
+import CustomLoadingOverlay from "./custom-loading-overlay";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -19,6 +21,7 @@ interface AgGridTableProps {
   className?: string;
   onGridReady?: (params: any) => void;
   gridRef?: React.RefObject<any>;
+  customTheme?: "legacy" | Theme | undefined;
 }
 
 const CustomDataTable: React.FC<AgGridTableProps> = ({
@@ -30,8 +33,13 @@ const CustomDataTable: React.FC<AgGridTableProps> = ({
   className = "",
   gridRef,
   onGridReady,
+  customTheme,
 }) => {
   const internalGridRef = useRef<any>(null);
+  const paginationPageSizeSelector = useMemo<number[] | boolean>(() => {
+    return [5, 10, 20, 50, 100, 200];
+  }, []);
+
   const activeRef = gridRef || internalGridRef;
 
   const myTheme = themeQuartz.withParams({
@@ -43,13 +51,14 @@ const CustomDataTable: React.FC<AgGridTableProps> = ({
       onto: "backgroundColor",
     },
     foregroundColor: "#FFF",
-    headerBackgroundColor: "#DCA955",
+    headerBackgroundColor: "#f89004",
     headerFontSize: 14,
     oddRowBackgroundColor: "#1E1E20",
     rowVerticalPaddingScale: 1.5,
   });
 
-  // Show/hide AG Grid loading overlay
+  const themeToUse = customTheme || myTheme;
+
   useEffect(() => {
     if (activeRef.current?.api) {
       if (loading) {
@@ -60,6 +69,10 @@ const CustomDataTable: React.FC<AgGridTableProps> = ({
     }
   }, [loading, activeRef]);
 
+  const loadingOverlayComponentParams = useMemo(() => {
+    return { loadingMessage: "One moment please..." };
+  }, []);
+
   return (
     <div className={`ag-theme-quartz ${className}`}>
       <AgGridReact
@@ -68,10 +81,15 @@ const CustomDataTable: React.FC<AgGridTableProps> = ({
         rowData={rowData}
         pagination={true}
         paginationPageSize={paginationPageSize}
+        paginationPageSizeSelector={paginationPageSizeSelector}
+        loadingOverlayComponent={CustomLoadingOverlay}
+        loadingOverlayComponentParams={loadingOverlayComponentParams}
         domLayout="autoHeight"
+        enableFilterHandlers={true}
         onGridReady={onGridReady}
+        loading={loading}
         {...gridOptions}
-        theme={myTheme}
+        theme={themeToUse}
       />
     </div>
   );

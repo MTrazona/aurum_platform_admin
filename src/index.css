@@ -64,6 +64,7 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
+  --golden: #dca955;
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -99,6 +100,7 @@
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
+   --golden: #dca955;
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -139,5 +141,20 @@
   }
   gradient {
     @apply bg-gradient-to-r from-[#000000] to-[#f89004];
+  }
+}
+
+@layer utilities {
+  .text-golden {
+    color: var(--golden);
+  }
+  .bg-golden {
+    background-color: var(--golden);
+  }
+  .border-golden {
+    border-color: var(--golden);
+  }
+  .stat-color {
+    @apply overflow-hidden  bg-[#1E1E20] border-0  shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] text-white/80 border-b-2 border-amber-500;
   }
 }

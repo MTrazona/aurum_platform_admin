@@ -1,4 +1,4 @@
-import type { TransactionData } from "@/types/transaction.types";
+import type { TransactionsType } from "@/types/buy-request.types";
 import moment from "moment";
 
 function maskName(name?: string): string | undefined {
@@ -72,7 +72,7 @@ function formatNumber(value: string | number, decimalPlaces: number = 2): string
 
 function PriceFormat(
   value: string | number,
-  details?: TransactionData,
+  details?: TransactionsType,
   isQMGT?: boolean,
   key?: "fromValue" | "toValue"
 ): string {
@@ -137,12 +137,8 @@ export const getContrastColor = (hex: string): string => {
 };
 
 export {
-  maskName,
-  formatPrice,
-  toTitleCase,
   dateFormatter,
   dateStringFormatter,
-  formatNumber,
-  PriceFormat,
-  maskEmail,
+  formatNumber, formatPrice, maskEmail, maskName, PriceFormat, toTitleCase
 };
+

@@ -10,10 +10,16 @@ import {
   dateStringFormatter,
   formatTransactionCode,
 } from "@/utils/format-helper";
+import type {
+  ColDef,
+  ICellRendererParams,
+  ValueFormatterParams,
+  ITooltipParams,
+} from "ag-grid-community";
 
 export const gaeRequestColumnDefs = (
   onView: (row: TransactionsType) => void
-) => [
+): ColDef<TransactionsType>[] => [
   {
     headerName: "Transaction Code",
     field: "transactionCode",
@@ -21,9 +27,8 @@ export const gaeRequestColumnDefs = (
     sortable: true,
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <p>{formatTransactionCode(data.transactionCode)}</p>
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <p>{formatTransactionCode(data.transactionCode)}</p> : null,
   },
   {
     headerName: "Transaction Type",
@@ -38,109 +43,115 @@ export const gaeRequestColumnDefs = (
     sortable: true,
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `${data.customer?.firstName ?? "--"} ${data.customer?.lastName ?? "--"}`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <p>
-        {data.customer?.firstName ?? "--"} {data.customer?.lastName ?? "--"}
-      </p>
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `${data?.customer?.firstName ?? "--"} ${data?.customer?.lastName ?? "--"}`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <p>
+          {data.customer?.firstName ?? "--"} {data.customer?.lastName ?? "--"}
+        </p>
+      ) : null,
   },
   {
     headerName: "Unit bought",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <p>
-        {data.fromValue} {Number(data.fromValue) > 1 ? "Units" : "Unit"}
-      </p>
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <p>
+          {data.fromValue} {Number(data.fromValue) > 1 ? "Units" : "Unit"}
+        </p>
+      ) : null,
   },
   {
     headerName: "Unit Total Value",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <USDTDisplay value={Number(data.toValue ?? 0)} />
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <USDTDisplay value={Number(data.toValue ?? 0)} /> : null,
   },
   {
     headerName: "Down Payment",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `₱ ${Number(data.gaeDownPayment ?? 0) * Number(data.usdRate ?? 0)}`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <PHPDisplay
-        value={Number(data.gaeDownPayment ?? 0) * Number(data.usdRate ?? 0)}
-      />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `₱ ${Number(data?.gaeDownPayment ?? 0) * Number(data?.usdRate ?? 0)}`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <PHPDisplay
+          value={Number(data.gaeDownPayment ?? 0) * Number(data.usdRate ?? 0)}
+        />
+      ) : null,
   },
   {
     headerName: "Management Fee",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `₱ ${Number(data.managementFeeAdvance ?? 0) * Number(data.usdRate ?? 0)}`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <PHPDisplay
-        value={
-          Number(data.managementFeeAdvance ?? 0) * Number(data.usdRate ?? 0)
-        }
-      />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `₱ ${Number(data?.managementFeeAdvance ?? 0) * Number(data?.usdRate ?? 0)}`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <PHPDisplay
+          value={
+            Number(data.managementFeeAdvance ?? 0) *
+            Number(data.usdRate ?? 0)
+          }
+        />
+      ) : null,
   },
   {
     headerName: "Amount Deposited",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `₱ ${Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <PHPDisplay
-        value={Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}
-      />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `₱ ${Number(data?.gaeTotal ?? 0) * Number(data?.usdRate ?? 0)}`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <PHPDisplay
+          value={Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}
+        />
+      ) : null,
   },
   {
     headerName: "Transaction Fee",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `₱ ${Number(data.transactionFee ?? 0) * Number(data.usdRate ?? 0)}`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <PHPDisplay
-        value={Number(data.transactionFee ?? 0) * Number(data.usdRate ?? 0)}
-      />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `₱ ${Number(data?.transactionFee ?? 0) * Number(data?.usdRate ?? 0)}`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <PHPDisplay
+          value={
+            Number(data.transactionFee ?? 0) * Number(data.usdRate ?? 0)
+          }
+        />
+      ) : null,
   },
   {
     headerName: "Amount to Receive",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `${data.bookingNote ?? 0} QMGT`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <QMGTDisplay value={data.bookingNote ?? 0} />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `${data?.bookingNote ?? 0} QMGT`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <QMGTDisplay value={data.bookingNote ?? 0} /> : null,
   },
   {
     headerName: "Gold Price",
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `${data.goldPrice} USDT`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <USDTDisplay value={data.goldPrice} />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `${data?.goldPrice} USDT`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <USDTDisplay value={data.goldPrice} /> : null,
   },
   {
     headerName: "USDT Price",
@@ -148,11 +159,10 @@ export const gaeRequestColumnDefs = (
     sortable: true,
     filter: "agNumberColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      `${data.usdRate} USDT`,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <USDTDisplay value={data.usdRate} />
-    ),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      `${data?.usdRate} USDT`,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <USDTDisplay value={data.usdRate} /> : null,
   },
   {
     headerName: "Tracking Number",
@@ -168,9 +178,8 @@ export const gaeRequestColumnDefs = (
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
     tooltipField: "transactionStatus",
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <StatusChip status={data.transactionStatus} />
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? <StatusChip status={data.transactionStatus} /> : null,
   },
   {
     headerName: "Reference Number",
@@ -186,10 +195,10 @@ export const gaeRequestColumnDefs = (
     sortable: true,
     filter: "agDateColumnFilter",
     cellDataType: "dateTime",
-    tooltipValueGetter: ({ data }: { data: TransactionsType }) =>
-      dateStringFormatter(data.trDate),
-    valueFormatter: ({ data }: { data: TransactionsType }) =>
-      dateStringFormatter(data.trDate),
+    tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
+      data?.trDate ? dateStringFormatter(data.trDate) : "",
+    valueFormatter: ({ data }: ValueFormatterParams<TransactionsType>) =>
+      data?.trDate ? dateStringFormatter(data.trDate) : "",
   },
   {
     headerName: "Actions",
@@ -197,12 +206,13 @@ export const gaeRequestColumnDefs = (
     pinned: "right",
     sortable: false,
     filter: false,
-    cellRenderer: ({ data }: { data: TransactionsType }) => (
-      <div className="flex justify-center items-center h-full w-full">
-        <Button className="cursor-pointer" onClick={() => onView(data)}>
-          View
-        </Button>
-      </div>
-    ),
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <div className="flex justify-center items-center h-full w-full">
+          <Button className="cursor-pointer" onClick={() => onView(data)}>
+            View
+          </Button>
+        </div>
+      ) : null,
   },
 ];

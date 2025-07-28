@@ -15,6 +15,7 @@ export interface TransactionsType {
   documentId: string;
   trDate: string;
   transactionCode: string;
+  trackingNumber:string;
   txnID: string | null;
   transactionType: string;
   transactionStatus: string;

@@ -75,6 +75,6 @@ export default function useUsersHooks() {
     fetchWalletAddress,
     handleBlockedUnblock,
     handleLockedUnlock,
-    closeWalletAddressModal
+    closeWalletAddressModal,
   };
 }

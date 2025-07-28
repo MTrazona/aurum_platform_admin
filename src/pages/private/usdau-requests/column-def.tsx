@@ -1,4 +1,8 @@
-import type { ColDef, ICellRendererParams, ValueFormatterParams } from "ag-grid-community";
+import type {
+  ColDef,
+  ICellRendererParams,
+  ValueFormatterParams,
+} from "ag-grid-community";
 import type { USDAUTransactions } from "@/types/usdau-request.types";
 import { dateStringFormatter, PriceFormat } from "@/utils/format-helper";
 import StatusChip from "@/components/status-chip";
@@ -13,15 +17,6 @@ export const usdauRequestColumnDefs = (
     sortable: true,
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
-  },
-  {
-    headerName: "From Value",
-    field: "fromValue",
-    sortable: true,
-    filter: "agNumberColumnFilter",
-    filterParams: { buttons: ["reset", "apply"] },
-    cellRenderer: ({ data }: ICellRendererParams<USDAUTransactions>) =>
-      data ? <p>{PriceFormat(data.fromValue)}</p> : null,
   },
   {
     headerName: "Amount Request",
@@ -58,6 +53,15 @@ export const usdauRequestColumnDefs = (
     filterParams: { buttons: ["reset", "apply"] },
   },
   {
+    headerName: "USDAU History",
+    sortable: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+    cellRenderer: ({ data }: ICellRendererParams<USDAUTransactions>) => (
+      <p className="w-full text-center">{data?.usdauWallet?.usdau_histories?.length ?? 0}</p>
+    ),
+  },
+  {
     headerName: "Request Status",
     field: "requestStatus",
     sortable: true,
@@ -77,22 +81,16 @@ export const usdauRequestColumnDefs = (
       value ? dateStringFormatter(value) : "",
   },
   {
-    headerName: "Created At",
-    field: "createdAt",
-    sortable: true,
-    filter: "agDateColumnFilter",
-    cellDataType: "dateTime",
-    filterParams: { buttons: ["reset", "apply"] },
-    valueFormatter: ({ value }: ValueFormatterParams) =>
-      value ? dateStringFormatter(value) : "",
-  },
-  {
     headerName: "Actions",
     width: 100,
-    pinned:'right',
+    pinned: "right",
     cellRenderer: ({ data }: ICellRendererParams<USDAUTransactions>) =>
       data ? (
-        <Button variant="outline" className="bg-primary cursor-pointer" onClick={() => onView(data)}>
+        <Button
+          variant="outline"
+          className="bg-primary cursor-pointer"
+          onClick={() => onView(data)}
+        >
           View
         </Button>
       ) : null,

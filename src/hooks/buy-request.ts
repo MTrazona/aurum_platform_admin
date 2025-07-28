@@ -1,15 +1,15 @@
 import { checkedBuyRequest, getAllBuyRequestofUser } from "@/apis/buy-requests";
 import { queryClient } from "@/main";
-import type { BuyTransaction } from "@/types/buy-request.types";
+import type { TransactionsType } from "@/types/buy-request.types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function useBuyRequests() {
-  const { data, isLoading } = useQuery<BuyTransaction[]>({
+  const { data, isLoading } = useQuery<TransactionsType[]>({
     queryKey: ["buy-requests"],
     queryFn: getAllBuyRequestofUser,
   });
-  const [selectedRequest, setSelectedRequest] = useState<BuyTransaction | null>(
+  const [selectedRequest, setSelectedRequest] = useState<TransactionsType | null>(
     null
   );
 
@@ -53,7 +53,7 @@ export default function useBuyRequests() {
     },
   });
 
-  const viewRequest = (request: BuyTransaction) => {
+  const viewRequest = (request: TransactionsType) => {
     setSelectedRequest(request);
   };
   return {

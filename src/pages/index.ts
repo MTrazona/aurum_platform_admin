@@ -1,4 +1,3 @@
-import DashboardPage from "./private/dashboard";
 import SigninPage from "./public/signin";
 import UsersPage from "./private/users";
 import TransactionsPage from "./private/transactions";
@@ -8,6 +7,7 @@ import GCARequestsPage from "./private/gca-requests";
 import RankUpRequestsPage from "./private/rank-up-request";
 import GAERequestsPage from "./private/gae-requests";
 import USDAURequestsPage from "./private/usdau-requests";
+import DashboardPage from "./private/dashboard";
 
 export {
   SigninPage,

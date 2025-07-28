@@ -22,12 +22,18 @@ import {
 } from "@/components/ui/sidebar";
 import { urls } from "@/routes";
 import {
-  AudioWaveform,
+  Activity,
+  ArrowUpCircle,
   BookOpen,
   Building,
+  Building2,
   ChevronRight,
-  Globe,
+  CreditCard,
+  FileSearch,
+  FileSignature,
+  ShoppingCart,
   SquareTerminal,
+  User
 } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -40,27 +46,27 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       label: "Core",
       icon: SquareTerminal,
       items: [
-        { title: "Dashboard", url: urls.dashboard },
-        { title: "Users", url: urls.users },
-        { title: "Transactions", url: urls.transactions },
+        { title: "Dashboard", url: urls.dashboard, icon: SquareTerminal },
+        { title: "Users", url: urls.users, icon: User },
+        { title: "Transactions", url: urls.transactions, icon: Activity },
       ],
     },
     {
       label: "Request Management",
       icon: BookOpen,
       items: [
-        { title: "Bank Request", url: urls.bankReq },
-        { title: "Buy Request", url: urls.buyReq },
-        { title: "GCA Request", url: urls.gcaReq },
-         { title: "GAE Request", url: urls.gaeReq },
+        { title: "Bank Request", url: urls.bankReq, icon: CreditCard },
+        { title: "Buy Request", url: urls.buyReq, icon: ShoppingCart },
+        { title: "GCA Request", url: urls.gcaReq, icon: FileSearch },
+        { title: "GAE Request", url: urls.gaeReq, icon: FileSignature },
       ],
     },
     {
       label: "Other",
       icon: Building,
       items: [
-        { title: "USDAU Request", url: urls.usdauReq, icon: Building },
-          { title: "Rankup Request", url: urls.rankReq },
+        { title: "USDAU Request", url: urls.usdauReq, icon: Building2 },
+        { title: "Rankup Request", url: urls.rankReq, icon: ArrowUpCircle },
       ],
     },
   ];
@@ -81,23 +87,19 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher
-          teams={[
-            { name: "Aurum", plan: "Platform", logo: AudioWaveform },
-            { name: "Acme Corp.", plan: "Startup", logo: Globe },
-          ]}
-        />
+        <TeamSwitcher />
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             {navGroups.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <Collapsible open={openGroup === item.label}>
+              <Collapsible asChild open={openGroup === item.label} className="group/collapsible">
+                <SidebarMenuItem key={item.label}>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
                       onClick={() => handleToggleGroup(item.label)}
+                      className="hover:bg-[#f89004]"
                     >
                       {item.icon && <item.icon />}
                       <span className="text-lg">{item.label}</span>
@@ -105,18 +107,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-3">
-                    <SidebarMenuSub>
+                    <SidebarMenuSub className="border-0">
                       {item.items?.map((subItem) => {
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton
                               asChild
-                              className={`hover:bg-gradient-to-r from-[#000000] to-[#f89004] hover: !text-white ${
-                                subItem.url === pathname &&
-                                "bg-gradient-to-r from-[#000000] to-[#f89004]"
+                              className={`hover:bg-[#f89004] hover:!text-white ${
+                                subItem.url === pathname && "bg-[#f89004]"
                               }`}
                             >
-                              <Link to={subItem.url} className="p-5">
+                              <Link
+                                to={subItem.url}
+                                className="p-5 flex items-center gap-2 text-inherit"
+                              >
+                                {subItem.icon && (
+                                  <subItem.icon className="w-4 h-4 !text-white" />
+                                )}
                                 <span>{subItem.title}</span>
                               </Link>
                             </SidebarMenuSubButton>
@@ -125,8 +132,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
-                </Collapsible>
-              </SidebarMenuItem>
+                </SidebarMenuItem>
+              </Collapsible>
             ))}
           </SidebarMenu>
         </SidebarGroup>
