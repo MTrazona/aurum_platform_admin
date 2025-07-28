@@ -33,3 +33,21 @@ export interface AuthResponse {
   jwt: string;
   adminAccount: AdminAccount;
 }
+
+
+export interface AdminType {
+  userType: string;
+  description: string;
+}
+
+export interface Admin {
+  id: number;
+  name: string;
+  username: string;
+  blocked: boolean;
+  email: string;
+  profilePictureLink: string | null;
+  createdAt: string; 
+  updatedAt: string; 
+  userType: AdminType;
+}

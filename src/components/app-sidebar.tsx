@@ -20,6 +20,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/context/auth-context";
 import { urls } from "@/routes";
 import {
   Activity,
@@ -39,6 +40,7 @@ import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+    const { user } = useAuth();
   const { pathname } = useLocation();
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const navGroups = [
@@ -93,8 +95,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {navGroups.map((item) => (
-              <Collapsible asChild open={openGroup === item.label} className="group/collapsible">
+            {navGroups.map((item,index) => (
+              <Collapsible key={index}  asChild open={openGroup === item.label} className="group/collapsible">
                 <SidebarMenuItem key={item.label}>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
@@ -142,8 +144,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser
           user={{
-            name: "shadcn",
-            email: "m@example.com",
+            name: user?.name ?? '',
+            email: user?.email ?? '',
             avatar: "/avatars/shadcn.jpg",
           }}
         />

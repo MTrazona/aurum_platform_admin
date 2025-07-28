@@ -36,13 +36,6 @@ export const transactionColumnDefs: ColDef<TransactionsType>[] = [
           .map((v) => v.trim().toLowerCase());
         const rowValue = value.trim().toLowerCase();
         const isMatch = selectedValues.includes(rowValue);
-
-        console.log(
-          `[COMPARE] Row: "${rowValue}" vs Filter:`,
-          selectedValues,
-          "→",
-          isMatch
-        );
         return isMatch;
       },
     },

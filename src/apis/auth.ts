@@ -1,5 +1,5 @@
 import api from "@/config/axios";
-import type { AuthResponse, SignInData } from "@/types/auth.types";
+import type { Admin, AuthResponse, SignInData } from "@/types/auth.types";
 import { getSHA256 } from "@/utils/get-sha-256";
 
 export const signinAuthentication = async (
@@ -14,7 +14,6 @@ export const signinAuthentication = async (
       `/admin-login?is_admin=${generateSha256}`,
       data
     );
-    console.log(response);
     return response.data;
   } catch (error) {
     if (error instanceof Error) {
@@ -26,9 +25,9 @@ export const signinAuthentication = async (
   }
 };
 
-export const fetchCurrentUser = async() => {
+export const fetchCurrentUser = async():Promise<Admin> => {
   try {
-    const response = await api.get('/getInfo')
+    const response = await api.get('/admin-get-info')
     return response.data;
   } catch (error) {
         if (error instanceof Error) {

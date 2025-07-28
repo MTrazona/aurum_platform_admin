@@ -37,6 +37,34 @@ export interface User {
   suffixName: string | null;
   is_password_updated: boolean | null;
   login_attempt: LoginAttempt;
+  customer_rank: CustomerRank;
+}
+
+export interface RankCode {
+  id: number;
+  documentId: string;
+  rankName: string;
+  rankDescription: string;
+  createBy: string | null;
+  createdDate: string; // ISO date string
+  rankID: string;
+  rankColor: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  locale: string | null;
+}
+
+export interface CustomerRank {
+  id: number;
+  documentId: string;
+  promostionDate: string; // ISO date string
+  rankStatus: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  locale: string | null;
+  rank_code: RankCode;
 }
 
 export interface UserStatusPayload {

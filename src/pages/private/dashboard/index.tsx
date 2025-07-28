@@ -1,15 +1,30 @@
-import useDashboard from "@/hooks/use-dashboard";
-import { LiveUsersChart } from "./charts/live-user-charts";
-import { StatCard } from "./charts/stat-card";
-import { TransactionsMetricsChart } from "./charts/transaction-metric-charts";
-import { TopConsultantsCard } from "./charts/top-consultants";
-import { SessionDevicesChart } from "./charts/session-devices-charts";
-import { AdminTasksOverviewCard } from "./charts/admin-task";
-import { AdminBlockchainBalances } from "./charts/admin-balances";
 import Breadcrumb from "@/components/routes-bread-crumb";
+import useDashboard from "@/hooks/use-dashboard";
+import type { BankAccountVerification } from "@/types/bank-request.types";
+import type { TransactionsType } from "@/types/buy-request.types";
+import type { USDAUTransactions } from "@/types/usdau-request.types";
+import { AdminBlockchainBalances } from "./charts/admin-balances";
+import { AdminTasksOverviewCard } from "./charts/admin-task";
+import { LiveUsersChart } from "./charts/live-user-charts";
+import { SessionDevicesChart } from "./charts/session-devices-charts";
+import { StatCard } from "./charts/stat-card";
+import { TopConsultantsCard } from "./charts/top-consultants";
+import { TransactionsMetricsChart } from "./charts/transaction-metric-charts";
+import type { User } from "@/types/customer.types";
 
 export default function DashboardPage() {
-  const { rf, userCountByCountry, buySell, convert, gae } = useDashboard();
+  const {
+    rf,
+    userCountByCountry,
+    buySell,
+    convert,
+    gae,
+    bankRequests,
+    transactions,
+    usdauReq,
+    user,
+    adminBalance
+  } = useDashboard();
 
   const consultants = [
     {
@@ -70,13 +85,7 @@ export default function DashboardPage() {
         <div className="w-full grid grid-cols-5 gap-x-6">
           <div className="col-span-3">
             <AdminBlockchainBalances
-              data={{
-                usdtBalance: "999998986415875.112879144476241524",
-                qmgtBalance: "998878474943942.904131622059600085",
-                ftmBalance: "0.403521740079984182",
-                usdtTotalSupply: "1000000000000000.0",
-                qmgtTotalSupply: "1000000000000000.0",
-              }}
+              data={adminBalance}
             />
           </div>
           <div className="col-span-2">
@@ -88,10 +97,29 @@ export default function DashboardPage() {
         <LiveUsersChart userCountByCountry={userCountByCountry} />
 
         <AdminTasksOverviewCard
-          pendingBankApprovals={5}
-          pendingTransactionApprovals={8}
-          pendingUsdauRequests={3}
-          pendingKycVerifications={7}
+          pendingBankApprovals={
+            bankRequests?.filter(
+              (v: BankAccountVerification) =>
+                v.statusOfVerification.toLowerCase() === "pending"
+            )?.length ?? 0
+          }
+          pendingTransactionApprovals={
+            transactions?.filter(
+              (v: TransactionsType) =>
+                v.transactionStatus?.toLowerCase() === "pending"
+            ).length ?? 0
+          }
+          pendingUsdauRequests={
+            usdauReq?.filter(
+              (v: USDAUTransactions) =>
+                v.requestStatus?.toLowerCase() === "pending"
+            ).length ?? 0
+          }
+          pendingKycVerifications={
+            user?.filter(
+              (v: User) => v.kycVerified?.toLowerCase() !== "verified"
+            ).length ?? 0
+          }
         />
         <div>
           <SessionDevicesChart />

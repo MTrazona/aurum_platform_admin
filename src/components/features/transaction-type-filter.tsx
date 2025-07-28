@@ -55,9 +55,6 @@ const TransactionTypeMultiSelectFilter = ({
 
     const joined = updated.map((v) => v.toLowerCase()).join("|");
 
-    console.log("[FILTER] Updated selected values:", updated);
-    console.log("[FILTER] Pipe-joined filter string:", joined);
-
     onStateChange({
       model:
         updated.length === 0
@@ -70,7 +67,6 @@ const TransactionTypeMultiSelectFilter = ({
     });
 
     if (!buttons?.includes("apply")) {
-      console.log("[FILTER] Auto-applying filter");
       onAction("apply");
     }
   };

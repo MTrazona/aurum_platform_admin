@@ -1,102 +1,139 @@
-import { getAllBankRequestofUser } from "@/apis/bank-requests";
-import { getAllUserTransactions } from "@/apis/transaction-list";
-import { fetchUsers } from "@/apis/users";
-import type { BankAccountVerification } from "@/types/bank-request.types";
-import type { TransactionsType } from "@/types/buy-request.types";
-import type { User } from "@/types/customer.types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import useTransactionList from "./transactions-list";
-import { Banknote, FileText, Repeat, ShieldCheck } from "lucide-react";
+import {
+  Banknote,
+  FileText,
+  Repeat,
+  ShieldCheck,
+} from "lucide-react";
+import type { User } from "@/types/customer.types";
+import { fetchUsers } from "@/apis/users";
+import { getUSDAURequests } from "@/apis/usdau-requests";
+import type { TransactionsType } from "@/types/buy-request.types";
+import { getAllUserTransactions } from "@/apis/transaction-list";
+import { getAdminBalances } from "@/apis/token-price";
+import type { BankAccountVerification } from "@/types/bank-request.types";
+import { getAllBankRequestofUser } from "@/apis/bank-requests";
+
+const normalize = (val: string) => val?.toLowerCase().trim();
 
 export default function useDashboard() {
-  const { data: user = [] } = useQuery<User[]>({
+  // --- Data Fetching ---
+  const { data: user = [], isLoading: loadingUsers } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: fetchUsers,
   });
 
-  const { data: transactions = [] } = useQuery<TransactionsType[]>({
+  const { data: usdauReq, isLoading: loadingUsdau } = useQuery({
+    queryKey: ["request-usdau"],
+    queryFn: getUSDAURequests,
+  });
+
+  const {
+    data: transactions = [],
+    isLoading: loadingTransactions,
+  } = useQuery<TransactionsType[]>({
     queryKey: ["transaction-list"],
     queryFn: getAllUserTransactions,
   });
 
-  const { data: bankRequests = [] } = useQuery<BankAccountVerification[]>({
+  const { data: adminBalance, isLoading: loadingBalance } = useQuery<any>({
+    queryKey: ["admin-balances"],
+    queryFn: getAdminBalances,
+  });
+
+  const {
+    data: bankRequests = [],
+    isLoading: loadingBankRequests,
+  } = useQuery<BankAccountVerification[]>({
     queryKey: ["bank-requests"],
     queryFn: getAllBankRequestofUser,
   });
 
   const { buySell, convert, gae } = useTransactionList();
 
-  // ✅ Total verified (approved/verified) KYC users
-  const totalVerifiedUsers = useMemo(() => {
-    return user.filter(
-      (u) =>
-        u.kycVerified?.toLowerCase() === "approved" ||
-        u.kycVerified?.toLowerCase() === "verified"
-    ).length;
-  }, [user]);
+  // --- Computed Values ---
+  const totalVerifiedUsers = useMemo(
+    () =>
+      user.filter((u) =>
+        ["approved", "verified"].includes(normalize(u?.kycVerified))
+      ).length,
+    [user]
+  );
 
-  // ✅ Total consultants (approved + verified email)
-  const totalConsultant = useMemo(() => {
-    return user.filter(
-      (u) => u.kycVerified === "approved" && u.isVerifyEmail === true
-    ).length;
-  }, [user]);
+  const totalConsultant = useMemo(
+    () =>
+      user.filter(
+        (u) => normalize(u.customer_rank?.rank_code?.rankName) === "consultant"
+      ).length,
+    [user]
+  );
 
-  // ✅ User distribution by country (lowercased)
   const userCountByCountry = useMemo(() => {
     const map: Record<string, number> = {};
     user.forEach((u) => {
-      const country = (u.country || "Unknown").toLowerCase();
+      const country = normalize(u.country || "unknown");
       map[country] = (map[country] || 0) + 1;
     });
     return map;
   }, [user]);
 
-  // ✅ Admin task counts
-  const pendingBankApprovals = useMemo(() => {
-    return bankRequests.filter(
-      (req) => req.statusOfVerification?.toLowerCase() === "pending"
-    ).length;
-  }, [bankRequests]);
+  const pendingBankApprovals = useMemo(
+    () =>
+      bankRequests.filter(
+        (req) => normalize(req.statusOfVerification) === "pending"
+      ).length,
+    [bankRequests]
+  );
 
-  const pendingTransactionApprovals = useMemo(() => {
-    return transactions.filter(
-      (txn) => txn.transactionStatus?.toLowerCase() === "pending"
-    ).length;
-  }, [transactions]);
+  const pendingTransactionApprovals = useMemo(
+    () =>
+      transactions.filter(
+        (txn) => normalize(txn.transactionStatus) === "pending"
+      ).length,
+    [transactions]
+  );
 
-  const pendingUsdauRequests = useMemo(() => {
-    return gae?.filter((r) => r.transactionStatus?.toLowerCase() === "pending")
-      .length;
-  }, [gae]);
+  const pendingUsdauRequests = useMemo(
+    () =>
+      gae?.filter(
+        (r) => normalize(r.transactionStatus) === "pending"
+      ).length ?? 0,
+    [gae]
+  );
 
-  const rf = [
-    {
-      label: "KYC Users",
-      value: totalVerifiedUsers,
-      description: "10% Decrease last week",
-      icon: ShieldCheck, // Represents verification/KYC
-    },
-    {
-      label: "Transactions",
-      value: transactions.length,
-      description: "10% Decrease last week",
-      icon: Repeat, // Suggests exchange/transaction
-    },
-    {
-      label: "Bank Requests",
-      value: bankRequests.length,
-      description: "10% Decrease last week",
-      icon: Banknote, // Money-related request
-    },
-    {
-      label: "USDAU Requests",
-      value: gae?.length,
-      description: "10% Decrease last week",
-      icon: FileText, // Form/request document
-    },
-  ];
+  // --- Dashboard Cards ---
+  const rf = useMemo(
+    () => [
+      {
+        label: "KYC Users",
+        value: totalVerifiedUsers,
+        description: "10% Decrease last week",
+        icon: ShieldCheck,
+      },
+      {
+        label: "Transactions",
+        value: transactions.length,
+        description: "10% Decrease last week",
+        icon: Repeat,
+      },
+      {
+        label: "Bank Requests",
+        value: bankRequests.length,
+        description: "10% Decrease last week",
+        icon: Banknote,
+      },
+      {
+        label: "USDAU Requests",
+        value: gae?.length ?? 0,
+        description: "10% Decrease last week",
+        icon: FileText,
+      },
+    ],
+    [totalVerifiedUsers, transactions, bankRequests, gae]
+  );
 
   return {
     user,
@@ -109,8 +146,17 @@ export default function useDashboard() {
     convert,
     gae,
     rf,
+    usdauReq,
+    adminBalance,
     pendingBankApprovals,
     pendingTransactionApprovals,
     pendingUsdauRequests,
+    loading: {
+      users: loadingUsers,
+      transactions: loadingTransactions,
+      bankRequests: loadingBankRequests,
+      usdau: loadingUsdau,
+      balance: loadingBalance,
+    },
   };
 }

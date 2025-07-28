@@ -34,7 +34,6 @@ export function LoginForm({
 
       if (response.jwt) {
         saveToken(response.jwt)
-        console.log("Login successful:", response);
         navigate("/dashboard");
       } else {
         setErrorMessage("Login failed. Please check your credentials.");

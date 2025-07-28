@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { fetchCurrentUser } from "@/apis/auth";
+import type { Admin } from "@/types/auth.types";
 import axios from "axios";
 import {
   createContext,
@@ -9,17 +10,8 @@ import {
   useState,
 } from "react";
 
-// Define user type
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role?: string;
-  avatarUrl?: string;
-};
-
 type AuthContextType = {
-  user: User | null;
+  user: Admin | null;
   loading: boolean;
   logout: () => void;
   refetchUser: () => void;
@@ -35,9 +27,8 @@ export const useAuth = () => {
   return context;
 };
 
-// Provider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Admin | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Fetch user from API
@@ -45,10 +36,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const res = await fetchCurrentUser();
-      console.log(res)
       setUser(res);
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setUser(null);
     } finally {
       setLoading(false);
@@ -65,7 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout, refetchUser: fetchUser }}>
+    <AuthContext.Provider
+      value={{ user, loading, logout, refetchUser: fetchUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
