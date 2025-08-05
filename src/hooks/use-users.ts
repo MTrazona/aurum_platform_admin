@@ -3,7 +3,7 @@ import {
   fetchUsers,
   getWalletAddress,
   UnblockedBlockUser,
-  UnlockLockedUser,
+  UnlockLockedUser
 } from "@/apis/users";
 import { queryClient } from "@/main";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +14,6 @@ export default function useUsersHooks() {
     queryKey: ["users"],
     queryFn: fetchUsers,
   });
-
   const [isWalletAddressOpen, setIsWalletAddressOpen] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
   const [isWalletLoading, setIsWalletLoading] = useState(false);
@@ -63,6 +62,7 @@ export default function useUsersHooks() {
     setIsWalletAddressOpen(false);
     setWalletAddress("");
   };
+
 
   return {
     data,

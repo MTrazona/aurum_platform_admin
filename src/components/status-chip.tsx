@@ -8,6 +8,7 @@ interface StatusChipProps {
 const statusColors: Record<string, string> = {
   Verified: "bg-green-100 text-green-800",
   Approved: "bg-green-100 text-green-800",
+  Open: "bg-green-100 text-green-800",
   Completed: "bg-green-100 text-green-800",
   "Not Verified": "bg-gray-100 text-gray-800",
   Rejected: "bg-red-100 text-red-800",

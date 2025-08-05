@@ -5,9 +5,8 @@ export default function SigninPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 bg-gradient-to-b from-black to-yellow-600 p-6 md:p-10">
-
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
+          <div className="w-full max-w-md">
             <LoginForm />
           </div>
         </div>

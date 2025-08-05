@@ -1,14 +1,27 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import NavHeader from "@/components/nav-header"
-import { Separator } from "@/components/ui/separator"
+import { AppSidebar } from "@/components/app-sidebar";
+import NavHeader from "@/components/nav-header";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Outlet } from "react-router-dom"
+} from "@/components/ui/sidebar";
+import { useAuth } from "@/context/auth-context";
+import useStore from "@/zustand/store/store";
+import { selector } from "@/zustand/store/store.provider";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function PrivateLayout() {
+  const { user } = useAuth();
+  const admin = useStore(selector("admin"));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user && !admin.isAuthenticated) {
+      navigate("/");
+    }
+  }, [user, admin.isAuthenticated, navigate]);
   return (
     <SidebarProvider className="bg-[#1E1E20]">
       <AppSidebar />
@@ -34,4 +47,3 @@ export default function PrivateLayout() {
     </SidebarProvider>
   );
 }
-

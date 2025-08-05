@@ -57,6 +57,7 @@ const GCADataTable: React.FC<GCADataTableProps> = ({
         columnDefs={gcaRequestColumnDefs(viewRequest)}
         rowData={gca}
         loading={isLoading}
+        paginationPageSize={10}
         onGridReady={handleGridReady}
       />
     </div>

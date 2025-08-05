@@ -11,6 +11,7 @@ interface AdminState {
 export interface AdminSlice {
   admin: AdminState;
   saveToken: (payload: string) => void;
+  logoutAdmin: () => void;
 }
 
 const initialState: AdminState = {
@@ -25,14 +26,20 @@ const createAdminSlice: StateCreator<AdminSlice> = (set) => ({
   admin: initialState,
   saveToken: (payload) => {
     set((state) => ({
-        ...state,
-        admin: {
-            ...state.admin,
-            jwt: payload,
-            isAuthenticated: true
-        }
-    }))
+      ...state,
+      admin: {
+        ...state.admin,
+        jwt: payload,
+        isAuthenticated: true,
+      },
+    }));
+  },
+  logoutAdmin: () => {
+    set((state) => ({
+      ...state,
+      admin: initialState,
+    }));
   },
 });
 
-export default createAdminSlice
+export default createAdminSlice;

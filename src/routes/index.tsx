@@ -5,6 +5,7 @@ import {
   DashboardPage,
   GAERequestsPage,
   GCARequestsPage,
+  PersonalInfoPage,
   RankUpRequestsPage,
   SigninPage,
   TransactionsPage,
@@ -23,6 +24,7 @@ export const urls = {
   gaeReq: "/gae-requests",
   rankReq: "/rank-up-requests",
   usdauReq: "/usdau-requests",
+  personalInfo: "/users/:id",
 };
 export const routeList = {
   public: {
@@ -41,6 +43,7 @@ export const routeList = {
       { path: urls.gaeReq, element: <GAERequestsPage /> },
       { path: urls.rankReq, element: <RankUpRequestsPage /> },
       { path: urls.usdauReq, element: <USDAURequestsPage /> },
+      { path: urls.personalInfo, element: <PersonalInfoPage /> },
     ],
   },
 };

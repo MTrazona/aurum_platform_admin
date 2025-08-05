@@ -19,11 +19,13 @@ import { Button } from "@/components/ui/button";
 interface TransactionsDataTableProps {
   transactions: TransactionsType[];
   isLoading: boolean;
+  onViewClick: (transaction: TransactionsType) => void
 }
 
 const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
   transactions,
   isLoading,
+  onViewClick
 }) => {
   const [selectedType, setSelectedType] = useState<string>("all");
   const [searchText, setSearchText] = useState<string>("");
@@ -122,7 +124,7 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
       </div>
 
       <CustomDataTable
-        columnDefs={transactionColumnDefs}
+        columnDefs={transactionColumnDefs(onViewClick)}
         rowData={transactions}
         loading={isLoading}
         onGridReady={handleGridReady}

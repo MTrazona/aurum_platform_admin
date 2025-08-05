@@ -34,13 +34,13 @@ import {
   FileSignature,
   ShoppingCart,
   SquareTerminal,
-  User
+  User,
 } from "lucide-react";
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-    const { user } = useAuth();
+  const { user } = useAuth();
   const { pathname } = useLocation();
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const navGroups = [
@@ -95,8 +95,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {navGroups.map((item,index) => (
-              <Collapsible key={index}  asChild open={openGroup === item.label} className="group/collapsible">
+            {navGroups.map((item, index) => (
+              <Collapsible
+                key={index}
+                asChild
+                open={openGroup === item.label}
+                className="group/collapsible"
+              >
                 <SidebarMenuItem key={item.label}>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
@@ -144,8 +149,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser
           user={{
-            name: user?.name ?? '',
-            email: user?.email ?? '',
+            name: user?.name ?? "",
+            email: user?.email ?? "",
             avatar: "/avatars/shadcn.jpg",
           }}
         />

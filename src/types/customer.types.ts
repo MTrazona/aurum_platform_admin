@@ -46,7 +46,7 @@ export interface RankCode {
   rankName: string;
   rankDescription: string;
   createBy: string | null;
-  createdDate: string; // ISO date string
+  createdDate: string; 
   rankID: string;
   rankColor: string;
   createdAt: string;

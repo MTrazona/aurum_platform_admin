@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { fetchCurrentUser } from "@/apis/auth";
 import type { Admin } from "@/types/auth.types";
-import axios from "axios";
+import { logoutAdmin } from "@/zustand/store/store.provider";
 import {
   createContext,
   type ReactNode,
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       const res = await fetchCurrentUser();
-      setUser(res);
+      setUser(res); 
     } catch (err) {
       console.log(err);
       setUser(null);
@@ -46,8 +46,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    await axios.post("/api/logout");
+    logoutAdmin();
     setUser(null);
+    window.location.href = "/";
   };
 
   useEffect(() => {

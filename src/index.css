@@ -158,3 +158,7 @@
     @apply overflow-hidden  bg-[#1E1E20] border-0  shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] text-white/80 border-b-2 border-amber-500;
   }
 }
+
+button[data-radix-sheet-close] {
+  display: none !important;
+}

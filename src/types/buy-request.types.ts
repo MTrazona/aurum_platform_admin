@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Certificate {
   goldCertificateLink: string | null;
-  paymentVoucherLink?: string | null; // optional since it's not present in all
+  paymentVoucherLink?: string | null;
 }
 
 export interface BankCustomer {
-  bankName:string;
-  accountNumber:string;
-  accountHolderName:string;
+  bankName: string;
+  accountNumber: string;
+  accountHolderName: string;
 }
 
 export interface TransactionsType {
@@ -15,7 +15,10 @@ export interface TransactionsType {
   documentId: string;
   trDate: string;
   transactionCode: string;
-  trackingNumber:string;
+  remarks: string;
+  narrative: string;
+  trackingNumber: string;
+  remarkStatus:string;
   txnID: string | null;
   transactionType: string;
   transactionStatus: string;
@@ -85,6 +88,7 @@ export interface TransactionsType {
   referral_rewards: any[];
   direct_deposit_reward: any | null;
   transaction_payments: any[]; // Add specific type if known
-  customer: any | null; 
+  customer: any | null;
+  certificates: Certificate[];
   bankCustomer: BankCustomer;
 }

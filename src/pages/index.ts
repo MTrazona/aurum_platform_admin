@@ -8,6 +8,7 @@ import RankUpRequestsPage from "./private/rank-up-request";
 import GAERequestsPage from "./private/gae-requests";
 import USDAURequestsPage from "./private/usdau-requests";
 import DashboardPage from "./private/dashboard";
+import PersonalInfoPage from "./private/personal-info";
 
 export {
   SigninPage,
@@ -19,5 +20,6 @@ export {
   GCARequestsPage,
   GAERequestsPage,
   RankUpRequestsPage,
-  USDAURequestsPage
+  USDAURequestsPage,
+  PersonalInfoPage
 };

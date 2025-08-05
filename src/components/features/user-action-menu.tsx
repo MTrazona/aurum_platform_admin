@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/types/customer.types";
 import { MoreVertical } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type UserActionMenuProps = {
   userData: User;
@@ -21,6 +21,7 @@ export default function UserActionMenu({
   handleBlockedUnblock,
   handleLockedUnlock,
 }: UserActionMenuProps) {
+  const navigate = useNavigate()
   const userId = userData?.userHash;
   const { blocked, login_attempt } = userData;
   const isLocked = login_attempt?.loginStatus === "Locked";
@@ -30,10 +31,13 @@ export default function UserActionMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+      <DropdownMenuTrigger
+        className="w-full flex items-center justify-center h-full"
+        asChild
+      >
+        <button className="cursor-pointer">
           <MoreVertical className="h-5 w-5" />
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {/* Get Wallet Address */}
@@ -61,12 +65,22 @@ export default function UserActionMenu({
 
         {/* Block/Unblock User */}
         <DropdownMenuItem
+          className="cursor-pointer"
           onSelect={(e) => {
             e.preventDefault();
             if (userId) handleBlockedUnblock(userId, blocked);
           }}
         >
           <div className="flex items-center gap-2">{blockBtnText}</div>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onSelect={(e) => {
+            e.preventDefault();
+            if (userId) navigate(`/users/${userData.id}`);
+          }}
+        >
+          <div className="flex items-center gap-2">View</div>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

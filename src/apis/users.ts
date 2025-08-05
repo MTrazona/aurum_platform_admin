@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/config/axios";
 import type { User, UserStatusPayload } from "@/types/customer.types";
+import { PersonalInfo } from "@/types/personalinfo";
+
+type PersonalInfoResponse = {
+  personalInfo: PersonalInfo;
+};
 
 export const fetchUsers = async (): Promise<User[]> => {
   try {
@@ -9,6 +14,20 @@ export const fetchUsers = async (): Promise<User[]> => {
   } catch (error) {
     console.error("Failed to fetch users:", error);
     return [];
+  }
+};
+
+export const fetchUsersInfoById = async (
+  id: string | number
+): Promise<PersonalInfo | null> => {
+  try {
+    const response = await api.get<PersonalInfoResponse>(
+      `/users-information-per-id/${id}`
+    );
+    return response.data?.personalInfo ?? null;
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+    return null;
   }
 };
 
@@ -71,3 +90,5 @@ export const handleBlockedUnblock = async (
     setLoading((prev) => ({ ...prev, [userHash]: false }));
   }
 };
+
+export const fetchUserDetails = async () => {};

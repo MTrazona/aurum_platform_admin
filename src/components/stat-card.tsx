@@ -12,7 +12,7 @@ type StatCardProps = {
   color?: "blue" | "green" | "red" | "orange" | "yellow" | "purple";
 };
 
-const colorMap = {
+const colorMap = {  
   blue: "border-blue-500 text-blue-500 bg-blue-500",
   green: "border-green-500 text-green-500 bg-green-500",
   red: "border-red-500 text-red-500 bg-red-500",
@@ -40,14 +40,14 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-sm p-4 md:p-5 w-full max-w-xs sm:max-w-sm md:max-w-md ${borderColor} border overflow-hidden`}
+      className={`stat-color p-4 md:p-5 w-full max-w-xs sm:max-w-sm md:max-w-md ${borderColor} border overflow-hidden`}
     >
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div className="flex-1">
-          <p className="text-sm text-gray-500 mb-1">{title}</p>
+          <p className="text-sm  mb-1">{title}</p>
           <div className="flex items-center gap-2">
             {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
-            <span className="text-2xl font-semibold text-nowrap text-gray-800">
+            <span className="text-2xl font-semibold text-nowrap text-white-800">
               {value}
             </span>
           </div>
@@ -78,7 +78,7 @@ const StatCard: React.FC<StatCardProps> = ({
           <ArrowDownRight className="w-4 h-4 mr-1" />
         )}
         {percentageChange}
-        <span className="ml-2 text-gray-600 font-normal">{description}</span>
+        <span className="ml-2 text-gray-500 font-normal">{description}</span>
       </div>
     </div>
   );

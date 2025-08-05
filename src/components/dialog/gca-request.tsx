@@ -6,57 +6,72 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { TransactionsType } from "@/types/buy-request.types";
-import { Download } from "lucide-react";
 import { useState } from "react";
-import {
-  TransformComponent,
-  TransformWrapper
-} from "react-zoom-pan-pinch";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import CustomTextEditor from "../custom-editor";
 import { PHPDisplay } from "../features/price-display";
 import { ZoomControls } from "../features/zoom-controls";
 import StatusChip from "../status-chip";
 import { Checkbox } from "../ui/checkbox";
-import { Textarea } from "../ui/textarea";
 import RejectReasonDialog from "./reject-bank-request";
+import { viewDepositSlip } from "@/apis/gca-request";
 
 interface Props {
   data: TransactionsType;
   open: boolean;
   onClose: () => void;
-  onApprove?: (id: number) => void;
-  onReject?: (id: number, reason: string, other?: string) => void;
+  onRemarks: (
+    id: number | string,
+    remarks: string,
+    remarksstatus: string[]
+  ) => void;
+  onUpdate: (
+    id: number | string,
+    transactionStatus: string,
+    narrative: string,
+    rejectReason?: string
+  ) => void;
   isApproving?: boolean;
   isRejecting?: boolean;
+  isRemarking?:boolean;
 }
 
+const remarkOptions = ["On Hold", "Third Party", "Others"];
 
 const GCARequestDetailsModal: React.FC<Props> = ({
   data,
   open,
   onClose,
-  onApprove,
-  onReject,
+  onRemarks,
+  onUpdate,
   isApproving,
   isRejecting,
+  isRemarking
 }) => {
   const [confirming, setConfirming] = useState<"approve" | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [narrative, setNarrative] = useState("");
+  const [remarks, setRemarks] = useState(data?.remarks ?? "");
+  const [remarkTags, setRemarkTags] = useState<string[]>([]);
 
+  const handleViewDepositSlip = async () => {
+    try {
+      const res = await viewDepositSlip(data.id);
+      window.open(res, "_blank");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const renderAttachment = (label: string, url: string | null) => (
     <div className="space-y-2 w-full">
       <div className="flex justify-between items-center">
         <p className="text-sm font-medium">{label}</p>
-        {url && (
-          <a
-            href={url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 flex items-center gap-1 hover:underline"
-          >
-            <Download className="w-4 h-4" /> Download
-          </a>
-        )}
+        <Button
+          className="cursor-pointer"
+          onClick={() => handleViewDepositSlip()}
+        >
+          View Payment Instruction
+        </Button>
       </div>
       {url ? (
         <div className="relative border rounded h-[300px] bg-black overflow-hidden">
@@ -80,7 +95,7 @@ const GCARequestDetailsModal: React.FC<Props> = ({
   );
 
   const handleRejectConfirmed = (reason: string, other?: string) => {
-    onReject?.(data.id, reason, other);
+    onUpdate(data.id, "Rejected", narrative, reason ?? other);
     setShowRejectDialog(false);
     onClose();
   };
@@ -128,7 +143,8 @@ const GCARequestDetailsModal: React.FC<Props> = ({
               <PHPDisplay value={data.transactionFee} />
             </div>
             <div>
-              <strong>Account Number:</strong> {data.bankCustomer?.accountNumber}
+              <strong>Account Number:</strong>{" "}
+              {data.bankCustomer?.accountNumber}
             </div>
             <div className="flex items-center gap-2">
               <strong>Currency Fund:</strong>{" "}
@@ -166,7 +182,8 @@ const GCARequestDetailsModal: React.FC<Props> = ({
         </div>
         <div>
           <h1 className="text-sm font-medium mb-4">Narrative</h1>
-          <Textarea placeholder="Add narrative." />
+          <CustomTextEditor value={narrative} onChange={setNarrative} />
+
           <div className="flex flex-nowrap gap-2 pt-4">
             <Button
               variant="destructive"
@@ -189,30 +206,36 @@ const GCARequestDetailsModal: React.FC<Props> = ({
         <div>
           <div className="flex justify-between items-center">
             <h1 className="text-sm font-medium mb-4">Remarks</h1>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>On Hold</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>Third Party</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>Others</p>
-              </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              {remarkOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={remarkTags.includes(option)}
+                    onCheckedChange={(checked) => {
+                      setRemarkTags((prev) =>
+                        checked
+                          ? [...prev, option]
+                          : prev.filter((tag) => tag !== option)
+                      );
+                    }}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
             </div>
           </div>
-            <Textarea placeholder="Add Remarks." />
+          <CustomTextEditor value={remarks} onChange={setRemarks} />
         </div>
-          <Button
-              onClick={() => setConfirming("approve")}
-              disabled={isApproving}
-              className="cursor-pointer"
-            >
-              Update
-            </Button>
+        <Button
+          onClick={() => onRemarks(data.id, remarks, remarkTags)}
+          disabled={isApproving}
+          className="cursor-pointer"
+        >
+          {isRemarking ? "Updating" : "Update"}
+        </Button>
       </DialogContent>
 
       {/* Approve confirmation */}
@@ -231,7 +254,8 @@ const GCARequestDetailsModal: React.FC<Props> = ({
             </Button>
             <Button
               onClick={() => {
-                if (confirming === "approve") onApprove?.(data.id);
+                if (confirming === "approve")
+                  onUpdate(data.id, "Approved", narrative);
               }}
               disabled={isApproving}
             >

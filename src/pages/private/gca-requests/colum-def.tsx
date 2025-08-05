@@ -14,7 +14,7 @@ import type {
   ColDef,
   ICellRendererParams,
   ITooltipParams,
-  ValueFormatterParams
+  ValueFormatterParams,
 } from "ag-grid-community";
 
 export const gcaRequestColumnDefs = (
@@ -36,7 +36,9 @@ export const gcaRequestColumnDefs = (
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
     tooltipValueGetter: ({ data }: ITooltipParams<TransactionsType>) =>
-      `${data?.customer?.firstName ?? "--"} ${data?.customer?.lastName ?? "--"}`,
+      `${data?.customer?.firstName ?? "--"} ${
+        data?.customer?.lastName ?? "--"
+      }`,
     cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
       data ? (
         <p>
@@ -107,7 +109,7 @@ export const gcaRequestColumnDefs = (
   },
   {
     headerName: "Tracking Number",
-    field: "trackingNumber",
+    field: "referenceNumberAdmin",
     sortable: true,
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
@@ -121,6 +123,22 @@ export const gcaRequestColumnDefs = (
     tooltipField: "transactionStatus",
     cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
       data ? <StatusChip status={data.transactionStatus} /> : null,
+  },
+  {
+    headerName: "Remarks",
+    field: "remarks",
+    sortable: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+    tooltipValueGetter: ({ data }) =>
+      data?.remarks?.replace(/<[^>]*>?/gm, "") || "",
+
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <div>
+          {data.remarkStatus}
+        </div>
+      ) : null,
   },
   {
     headerName: "Reference Number",

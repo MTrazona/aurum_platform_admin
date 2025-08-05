@@ -5,10 +5,22 @@ import { useTransactionRequestStats } from "@/utils/calculate-buy-requests";
 import StatCard from "@/components/stat-card";
 import { formatNumber } from "@/utils/format-helper";
 import Breadcrumb from "@/components/routes-bread-crumb";
+import { ResponseMessageDialog } from "@/components/dialog/response-message";
 
 const GAERequestsPage = () => {
-  const { gae, selectedRequest, isLoading, setSelectedRequest, viewRequest,releaseGAE } =
-    useGaeRequests();
+  const {
+    gae,
+    selectedRequest,
+    isLoading,
+    remarksLoading,
+    updateLoading,
+    responseDialog,
+    setResponseDialog,
+    setSelectedRequest,
+    viewRequest,
+    onUpdate,
+    onRemarks,
+  } = useGaeRequests();
   const stats = useTransactionRequestStats(gae);
   return (
     <div className="space-y-6">
@@ -55,12 +67,36 @@ const GAERequestsPage = () => {
           data={selectedRequest}
           open={!!selectedRequest}
           onClose={() => setSelectedRequest(null)}
-          onApprove={(id) => id}
-          onReject={(id, reason, other) => (id, reason, other)}
-          isApproving={false}
-          isRejecting={false}
+          onUpdate={(
+            id,
+            narrative,
+            transactionStatus,
+            depositamount,
+            rejectReason
+          ) =>
+            onUpdate({
+              id,
+              narrative,
+              transactionStatus,
+              depositamount,
+              rejectReason,
+            })
+          }
+          onRemarks={(id, remarks, remarkstatus) =>
+            onRemarks({ id, remarks, remarkstatus })
+          }
+          isApproving={updateLoading}
+          isRemarking={remarksLoading}
+          isRejecting={updateLoading}
         />
       )}
+
+      <ResponseMessageDialog
+        isOpen={responseDialog.open}
+        message={responseDialog.message}
+        status={responseDialog.status}
+        onClose={() => setResponseDialog((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 };

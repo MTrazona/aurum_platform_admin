@@ -6,43 +6,63 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { TransactionsType } from "@/types/buy-request.types";
-import { dateStringFormatter } from "@/utils/format-helper";
+import { dateStringFormatter, formatNumber } from "@/utils/format-helper";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import CustomTextEditor from "../custom-editor";
 import {
   ConversionDisplay,
   GAEDisplay,
+  PHPDisplay,
   QMGTDisplay,
   UnitValueDisplay,
 } from "../features/price-display";
 import { ZoomControls } from "../features/zoom-controls";
 import StatusChip from "../status-chip";
 import { Checkbox } from "../ui/checkbox";
-import { Textarea } from "../ui/textarea";
 import RejectReasonDialog from "./reject-bank-request";
+import { Input } from "../ui/input";
 
 interface Props {
   data: TransactionsType;
   open: boolean;
   onClose: () => void;
-  onApprove?: (id: number) => void;
-  onReject?: (id: number, reason: string, other?: string) => void;
+  onRemarks: (
+    id: number | string,
+    remarks: string,
+    remarksstatus: string[]
+  ) => void;
+  onUpdate?: (
+    id: number,
+    narrative: string,
+    transactionStatus: string,
+    depositamount: number,
+    rejectReason?: string
+  ) => void;
   isApproving?: boolean;
   isRejecting?: boolean;
+  isRemarking?: boolean;
 }
+
+const remarkOptions = ["On Hold", "Third Party", "Others"];
 
 const GAERequestDetailsModal: React.FC<Props> = ({
   data,
   open,
   onClose,
-  onApprove,
-  onReject,
+  onUpdate,
+  onRemarks,
   isApproving,
+  isRemarking,
   isRejecting,
 }) => {
   const [confirming, setConfirming] = useState<"approve" | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [narrative, setNarrative] = useState("");
+  const [remarks, setRemarks] = useState(data?.remarks ?? "");
+  const [remarkTags, setRemarkTags] = useState<string[]>([]);
+  const [depositAmountInput, setDepositAmountInput] = useState<number>(0);
 
   const renderAttachment = (label: string, url: string | null) => (
     <div className="space-y-2 w-full">
@@ -82,7 +102,7 @@ const GAERequestDetailsModal: React.FC<Props> = ({
   );
 
   const handleRejectConfirmed = (reason: string, other?: string) => {
-    onReject?.(data.id, reason, other);
+    onUpdate?.(data.id, narrative, "Rejected", 0, reason ?? other);
     setShowRejectDialog(false);
     onClose();
   };
@@ -200,9 +220,42 @@ const GAERequestDetailsModal: React.FC<Props> = ({
             )}
           </div>
         </div>
-        <div>
+        <div className="space-y-2">
           <h1 className="text-sm font-medium mb-4">Narrative</h1>
-          <Textarea placeholder="Add narrative." />
+          <CustomTextEditor value={narrative} onChange={setNarrative} />
+          <div>
+            <h1 className="text-sm font-medium mb-2">Deposit Amount (PHP)</h1>
+            <Input
+              type="number"
+              placeholder="Enter deposit amount"
+              value={depositAmountInput}
+              onChange={(e) => {
+                const value = e.target.value;
+                setDepositAmountInput(value === "" ? 0 : parseFloat(value));
+              }}
+            />
+            <div className="mt-2 text-sm flex items-center gap-2">
+              <strong>Expected:</strong>
+              <PHPDisplay
+                value={Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}
+              />
+            </div>
+            <div className="text-sm flex items-center gap-2">
+              <strong>Change in USDAU:</strong>
+              {typeof depositAmountInput === "number" ? (
+                <p>
+                  USDAU{" "}
+                  {formatNumber(
+                    ((depositAmountInput / Number(data.usdRate)) -
+                      (Number(data.gaeTotal ?? 0)) + (Number(data.transactionFee)))
+                  )}
+                </p>
+              ) : (
+                "--"
+              )}
+            </div>
+          </div>
+
           <div className="flex flex-nowrap gap-2 pt-4">
             <Button
               variant="destructive"
@@ -225,29 +278,35 @@ const GAERequestDetailsModal: React.FC<Props> = ({
         <div>
           <div className="flex justify-between items-center">
             <h1 className="text-sm font-medium mb-4">Remarks</h1>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>On Hold</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>Third Party</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox />
-                <p>Others</p>
-              </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              {remarkOptions.map((option) => (
+                <label
+                  key={option}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={remarkTags.includes(option)}
+                    onCheckedChange={(checked) => {
+                      setRemarkTags((prev) =>
+                        checked
+                          ? [...prev, option]
+                          : prev.filter((tag) => tag !== option)
+                      );
+                    }}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
             </div>
           </div>
-          <Textarea placeholder="Add Remarks." />
+          <CustomTextEditor value={remarks} onChange={setRemarks} />
         </div>
         <Button
-          onClick={() => setConfirming("approve")}
-          disabled={isApproving}
+          onClick={() => onRemarks(data.id, remarks, remarkTags)}
+          disabled={isRemarking}
           className="cursor-pointer"
         >
-          Update
+          {isRemarking ? "Updating" : "Update"}
         </Button>
       </DialogContent>
 
@@ -267,7 +326,13 @@ const GAERequestDetailsModal: React.FC<Props> = ({
             </Button>
             <Button
               onClick={() => {
-                if (confirming === "approve") onApprove?.(data.id);
+                if (confirming === "approve")
+                  onUpdate?.(
+                    data.id,
+                    narrative,
+                    "Open",
+                    depositAmountInput
+                  );
               }}
               disabled={isApproving}
             >

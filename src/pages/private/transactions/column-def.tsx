@@ -1,14 +1,20 @@
-import type { ColDef, ICellRendererParams, ValueFormatterParams } from "ag-grid-community";
-import TransactionTypeMultiSelectFilter from "@/components/features/transaction-type-filter";
 import StatusChip from "@/components/status-chip";
+import { Button } from "@/components/ui/button";
+import type { TransactionsType } from "@/types/buy-request.types";
 import {
   dateStringFormatter,
   formatTransactionCode,
   PriceFormat,
 } from "@/utils/format-helper";
-import type { TransactionsType } from "@/types/buy-request.types";
+import type {
+  ColDef,
+  ICellRendererParams,
+  ValueFormatterParams,
+} from "ag-grid-community";
 
-export const transactionColumnDefs: ColDef<TransactionsType>[] = [
+export const transactionColumnDefs = (
+  onViewClick: (transaction: TransactionsType) => void
+): ColDef<TransactionsType>[] => [
   {
     headerName: "Transaction Code",
     field: "transactionCode",
@@ -23,25 +29,11 @@ export const transactionColumnDefs: ColDef<TransactionsType>[] = [
     field: "transactionType",
     minWidth: 150,
     sortable: true,
-    filter: {
-      component: TransactionTypeMultiSelectFilter,
-      handler: "agTextColumnFilterHandler",
-    },
-    filterParams: {
-      buttons: ["reset", "apply"],
-      textCustomComparator: (filter: string, value: string) => {
-        if (!filter || !value) return false;
-        const selectedValues = filter
-          .split("|")
-          .map((v) => v.trim().toLowerCase());
-        const rowValue = value.trim().toLowerCase();
-        const isMatch = selectedValues.includes(rowValue);
-        return isMatch;
-      },
-    },
+    filter: "agNumberColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
   },
   {
-    headerName: "From Value",
+    headerName: "Paid Amount",
     field: "fromValue",
     sortable: true,
     filter: "agNumberColumnFilter",
@@ -60,7 +52,7 @@ export const transactionColumnDefs: ColDef<TransactionsType>[] = [
       ) : null,
   },
   {
-    headerName: "To Value",
+    headerName: "Converted Amount",
     field: "toValue",
     sortable: true,
     filter: "agNumberColumnFilter",
@@ -71,7 +63,7 @@ export const transactionColumnDefs: ColDef<TransactionsType>[] = [
           {PriceFormat(
             data.toValue,
             data,
-            data.fromCurrency === "QMGT" &&
+            data.toCurrency === "QMGT" &&
               data.transactionType.toLowerCase() !== "buy",
             "toValue"
           )}
@@ -114,5 +106,19 @@ export const transactionColumnDefs: ColDef<TransactionsType>[] = [
     filterParams: { buttons: ["reset", "apply"] },
     valueFormatter: ({ value }: ValueFormatterParams) =>
       value ? dateStringFormatter(value) : "",
+  },
+  {
+    headerName: "Action",
+    width: 100,
+    pinned: "right",
+    sortable: false,
+    cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
+      data ? (
+        <Button
+          onClick={() => onViewClick(data)}
+        >
+          View
+        </Button>
+      ) : null,
   },
 ];

@@ -1,6 +1,8 @@
 import GCARequestDetailsModal from "@/components/dialog/gca-request";
 import ReleaseRequestModal from "@/components/dialog/release-gca-request";
+import { ResponseMessageDialog } from "@/components/dialog/response-message";
 import Breadcrumb from "@/components/routes-bread-crumb";
+import TransactionDetailsSheet from "@/components/sheets/gca-transaction-details-sheet";
 import StatCard from "@/components/stat-card";
 import useGcaRequests from "@/hooks/gca-requests";
 import { useTransactionRequestStats } from "@/utils/calculate-buy-requests";
@@ -12,14 +14,21 @@ const GCARequestsPage = () => {
     convert,
     selectedRequest,
     isLoading,
+    responseDialog,
+    releaseLoading,
+    remarksLoading,
+    updateLoading,
+    setResponseDialog,
     setSelectedRequest,
     viewRequest,
     releaseGCA,
+    onRemarks,
+    onUpdate,
   } = useGcaRequests();
-    const stats = useTransactionRequestStats(convert);
+  const stats = useTransactionRequestStats(convert);
   return (
     <div className="space-y-6">
-         <Breadcrumb />
+      <Breadcrumb />
       <h1 className="text-xl font-semibold text-white">GCA Requests</h1>
       <div className="flex gap-4">
         <StatCard
@@ -66,18 +75,39 @@ const GCARequestsPage = () => {
           data={selectedRequest}
           open={!!selectedRequest}
           onClose={() => setSelectedRequest(null)}
-          onApprove={(id) => id}
-          onReject={(id, reason, other) => (id, reason, other)}
-          isApproving={false}
-          isRejecting={false}
+          onRemarks={(id, remarks, remarkstatus) =>
+            onRemarks({ id: id, remarks: remarks, remarkstatus: remarkstatus })
+          }
+          onUpdate={(id, transactionStatus, narrative, rejectReason) =>
+            onUpdate({ id, transactionStatus, narrative, rejectReason })
+          }
+          isApproving={updateLoading}
+          isRejecting={updateLoading}
+          isRemarking={remarksLoading}
         />
-      ) : (
+      ) : selectedRequest &&
+        selectedRequest.transactionStatus.toLowerCase() === "approved" ? (
         <ReleaseRequestModal
+          data={selectedRequest}
           onClose={() => setSelectedRequest(null)}
           onSubmitForm={releaseGCA}
           open={!!selectedRequest}
+          loading={releaseLoading}
         />
-      )}
+      ) : selectedRequest ? (
+        <TransactionDetailsSheet
+          open={!!selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          transaction={selectedRequest}
+        />
+      ) : null}
+
+      <ResponseMessageDialog
+        isOpen={responseDialog.open}
+        message={responseDialog.message}
+        status={responseDialog.status}
+        onClose={() => setResponseDialog((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 };
