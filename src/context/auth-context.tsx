@@ -17,7 +17,6 @@ type AuthContextType = {
   refetchUser: () => void;
 };
 
-// Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Hook to use context
