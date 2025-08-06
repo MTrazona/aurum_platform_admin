@@ -38,7 +38,7 @@ const GCADataTable: React.FC<GCADataTableProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4 mb-6">
         <div className="flex items-center gap-2">
           <Label htmlFor="quick-search" className="text-white">
             Search:

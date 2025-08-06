@@ -25,10 +25,10 @@ const PersonalInfoPage = () => {
   if (!personalInfo) return;
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between text-white items-center">
         <div>
-          <p>Customer ID : {personalInfo?.documentId}</p>
-          <p>{dateStringFormatter(personalInfo?.createdAt)}</p>
+          <p className="font-semibold text-white/80 text-xl">Customer ID : {personalInfo?.documentId}</p>
+          <p className="text-white/40">{dateStringFormatter(personalInfo?.createdAt)}</p>
         </div>
         <Button>Blocked User</Button>
       </div>
@@ -45,7 +45,7 @@ const PersonalInfoPage = () => {
                 {personalInfo?.personal_information.firstName}{" "}
                 {personalInfo.personal_information?.lastName}
               </p>
-              <p className="text-md text-black/60">
+              <p className="text-md text-white/60">
                 Customer ID #{personalInfo?.documentId}
               </p>
             </div>
