@@ -1,13 +1,8 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useExtractReference } from "@/hooks/use-extract-reference";
 import type { TransactionsType } from "@/types/buy-request.types";
-import { dateStringFormatter, formatNumber } from "@/utils/format-helper";
-import { Download } from "lucide-react";
+import { formatNumber } from "@/utils/format-helper";
 import { useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import CustomTextEditor from "../custom-editor";
@@ -16,13 +11,11 @@ import {
   GAEDisplay,
   PHPDisplay,
   QMGTDisplay,
-  UnitValueDisplay,
 } from "../features/price-display";
 import { ZoomControls } from "../features/zoom-controls";
-import StatusChip from "../status-chip";
 import { Checkbox } from "../ui/checkbox";
-import RejectReasonDialog from "./reject-bank-request";
 import { Input } from "../ui/input";
+import RejectReasonDialog from "./reject-bank-request";
 
 interface Props {
   data: TransactionsType;
@@ -63,42 +56,9 @@ const GAERequestDetailsModal: React.FC<Props> = ({
   const [remarks, setRemarks] = useState(data?.remarks ?? "");
   const [remarkTags, setRemarkTags] = useState<string[]>([]);
   const [depositAmountInput, setDepositAmountInput] = useState<number>(0);
-
-  const renderAttachment = (label: string, url: string | null) => (
-    <div className="space-y-2 w-full">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-medium">{label}</p>
-        {url && (
-          <a
-            href={url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 flex items-center gap-1 hover:underline"
-          >
-            <Download className="w-4 h-4" /> Download
-          </a>
-        )}
-      </div>
-      {url ? (
-        <div className="relative border rounded h-[300px] bg-black overflow-hidden">
-          <TransformWrapper>
-            <ZoomControls />
-            <TransformComponent>
-              <img
-                src={url}
-                alt={label}
-                className="w-full h-full object-contain"
-              />
-            </TransformComponent>
-          </TransformWrapper>
-        </div>
-      ) : (
-        <div className="text-gray-400 italic border rounded p-4 h-[300px] flex items-center justify-center">
-          No {label.toLowerCase()}
-        </div>
-      )}
-    </div>
+  const { extractedReference, referenceMatch } = useExtractReference(
+    data?.receiptImageLinkUser,
+    data?.referenceNumberUser
   );
 
   const handleRejectConfirmed = (reason: string, other?: string) => {
@@ -109,205 +69,223 @@ const GAERequestDetailsModal: React.FC<Props> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl lg:min-w-2xl  space-y-4 max-h-[80vh] overflow-y-auto">
-        <DialogHeader className=" bg-white p-2 border-b">
-          <div className="flex justify-between items-start">
-            <div>
-              <DialogTitle className="text-xl font-bold">
-                Review GAE Request Receipt
-              </DialogTitle>
-            </div>
-            <StatusChip status={data.transactionStatus} />
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Please review the deposit receipt and associated bank details
-            submitted by the customer. Ensure the information is valid and
-            matches the transaction request.
-          </p>
-        </DialogHeader>
-
-        {/* Bank Info */}
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold text-gray-700">
-            Bank & Transaction Details
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Carefully verify the payment method, reference number, and deposited
-            amount. Approval should only proceed if all information matches a
-            valid deposit.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <p>
-                <strong>Customer Name:</strong> {data.customer?.firstName}{" "}
-                {data.customer?.lastName}
+      <DialogContent className="max-w-[65vw] min-w-[65vw] rounded-lg !bg-[#171717] text-white flex flex-col overflow-hidden">
+        <div className="flex flex-col lg:flex-row gap-8 max-h-[75vh] overflow-y-auto p-8">
+          <div className="flex-1 space-y-4">
+            {referenceMatch === "loading" && (
+              <p className="text-sm text-yellow-400 italic">
+                Checking reference number...
               </p>
-              <div className="flex items-center gap-2">
-                <strong>Total Buy Units:</strong>{" "}
-                <GAEDisplay value={data.fromValue} />
-              </div>
-              <p>
-                <strong>Paid In:</strong> PHP
+            )}
+            {referenceMatch === "matched" && (
+              <p className="text-sm text-green-400 font-semibold">
+                Reference number matched:{" "}
+                <span className="underline">{extractedReference}</span>
               </p>
-              <div className="flex items-center gap-2">
-                <strong>Total Unit Value:</strong>{" "}
-                <UnitValueDisplay data={data} />
-              </div>
-              <div className="flex items-center gap-2">
-                <strong>Total QMGT Holdings:</strong>{" "}
-                <QMGTDisplay value={data.bookingNote ?? 0} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <strong>Down Payment:</strong>{" "}
-                <ConversionDisplay
-                  currency="PHP"
-                  fromValue={data.gaeDownPayment ?? 0}
-                  rate={data.usdRate ?? 0}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <strong>Management Fee:</strong>{" "}
-                <ConversionDisplay
-                  currency="PHP"
-                  fromValue={data.managementFeeAdvance ?? 0}
-                  rate={data.usdRate ?? 0}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <strong>Transaction Fee:</strong>{" "}
-                <ConversionDisplay
-                  currency="PHP"
-                  fromValue={data.transactionFee ?? 0}
-                  rate={data.usdRate ?? 0}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <strong>GAE to be Paid:</strong>{" "}
-                <ConversionDisplay
-                  currency="PHP"
-                  fromValue={data.gaeTotal ?? 0}
-                  rate={data.usdRate ?? 0}
-                />
-              </div>
-              <p>
-                <strong>Date Submitted:</strong>{" "}
-                {dateStringFormatter(data.trDate)}
+            )}
+            {referenceMatch === "not-matched" && (
+              <p className="text-sm text-red-400 font-semibold">
+                Reference number mismatch. Found:{" "}
+                <span className="underline">{extractedReference}</span>
               </p>
-            </div>
-          </div>
-        </div>
+            )}
 
-        {/* Attachments */}
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold text-gray-700">
-            Uploaded Receipt
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Inspect the uploaded receipt to confirm the validity of the payment.
-            Ensure the date, amount, and reference number align with the
-            provided transaction data.
-          </p>
-
-          <div className="grid grid-cols-1">
-            {renderAttachment(
-              `Reference Number: ${data.referenceNumberUser}`,
-              data.receiptImageLinkUser
+            {data.receiptImageLinkUser ? (
+              <div className="relative border rounded h-auto bg-black overflow-hidden">
+                <TransformWrapper>
+                  <ZoomControls />
+                  <TransformComponent>
+                    <img
+                      src={data.receiptImageLinkUser}
+                      alt="Receipt"
+                      className="w-full h-full object-contain"
+                    />
+                  </TransformComponent>
+                </TransformWrapper>
+              </div>
+            ) : (
+              <div className="text-gray-400 italic border rounded p-4 h-[400px] flex items-center justify-center">
+                No receipt uploaded
+              </div>
             )}
           </div>
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-sm font-medium mb-4">Narrative</h1>
-          <CustomTextEditor value={narrative} onChange={setNarrative} />
-          <div>
-            <h1 className="text-sm font-medium mb-2">Deposit Amount (PHP)</h1>
-            <Input
-              type="number"
-              placeholder="Enter deposit amount"
-              value={depositAmountInput}
-              onChange={(e) => {
-                const value = e.target.value;
-                setDepositAmountInput(value === "" ? 0 : parseFloat(value));
-              }}
-            />
-            <div className="mt-2 text-sm flex items-center gap-2">
-              <strong>Expected:</strong>
-              <PHPDisplay
-                value={Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}
-              />
-            </div>
-            <div className="text-sm flex items-center gap-2">
-              <strong>Change in USDAU:</strong>
-              {typeof depositAmountInput === "number" ? (
-                <p>
-                  USDAU{" "}
-                  {formatNumber(
-                    ((depositAmountInput / Number(data.usdRate)) -
-                      (Number(data.gaeTotal ?? 0)) + (Number(data.transactionFee)))
-                  )}
-                </p>
-              ) : (
-                "--"
-              )}
-            </div>
-          </div>
+          <div className="flex-[0.5] mt-[34px]">
+            <div className="space-y-6 bg-[#1E1E1E] p-6 rounded-xl border border-[#3A3A3A]">
+              {/* Section Title */}
+              <h2 className="text-lg font-bold text-golden">Payment Summary</h2>
 
-          <div className="flex flex-nowrap gap-2 pt-4">
-            <Button
-              variant="destructive"
-              onClick={() => setShowRejectDialog(true)}
-              disabled={isRejecting}
-              className="cursor-pointer flex-1"
-            >
-              Reject
-            </Button>
-
-            <Button
-              onClick={() => setConfirming("approve")}
-              disabled={isApproving}
-              className="cursor-pointer flex-1"
-            >
-              Approve
-            </Button>
-          </div>
-        </div>
-        <div>
-          <div className="flex justify-between items-center">
-            <h1 className="text-sm font-medium mb-4">Remarks</h1>
-            <div className="flex items-center gap-4 flex-wrap">
-              {remarkOptions.map((option) => (
-                <label
-                  key={option}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Checkbox
-                    checked={remarkTags.includes(option)}
-                    onCheckedChange={(checked) => {
-                      setRemarkTags((prev) =>
-                        checked
-                          ? [...prev, option]
-                          : prev.filter((tag) => tag !== option)
-                      );
-                    }}
+              <div className="grid grid-cols-1 gap-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Paid Amount:</span>
+                  <PHPDisplay value={data.fromValue} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Transaction Fee:</span>
+                  <PHPDisplay value={data.transactionFee} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Currency Fund:</span>
+                  <PHPDisplay value={data.toValue} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Total Buy Units:</span>
+                  <GAEDisplay value={data.fromValue} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Total QMGT Holdings:</span>
+                  <QMGTDisplay value={data.bookingNote ?? 0} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Down Payment:</span>
+                  <ConversionDisplay
+                    currency="PHP"
+                    fromValue={data.gaeDownPayment ?? 0}
+                    rate={data.usdRate ?? 0}
                   />
-                  <span>{option}</span>
-                </label>
-              ))}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Management Fee:</span>
+                  <ConversionDisplay
+                    currency="PHP"
+                    fromValue={data.managementFeeAdvance ?? 0}
+                    rate={data.usdRate ?? 0}
+                  />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-[#3A3A3A] my-2"></div>
+
+              {/* Bank Info Section */}
+              <h2 className="text-lg font-bold text-golden">Bank Info</h2>
+
+              <div className="grid grid-cols-1 gap-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Bank Name:</span>
+                  <span className="font-medium text-white">
+                    {data.bankCustomer?.bankName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Account Number:</span>
+                  <span className="font-medium text-white">
+                    {data.bankCustomer?.accountNumber}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Account Holder Name:</span>
+                  <span className="font-medium text-white">
+                    {data.bankCustomer?.accountHolderName}
+                  </span>
+                </div>
+
+                {data.rejectReason && (
+                  <div className="pt-2">
+                    <span className="text-red-400 text-sm font-medium">
+                      Rejection Reason: {data.rejectReasonOthers}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mt-3">
+              <h1 className="text-sm text-gray-300 font-normal mb-2">
+                Deposit Amount (PHP)
+              </h1>
+              <Input
+                type="number"
+                placeholder="Enter deposit amount"
+                value={depositAmountInput}
+                className="text-black"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setDepositAmountInput(value === "" ? 0 : parseFloat(value));
+                }}
+              />
+              <div className="mt-2 text-sm flex items-center gap-2">
+                <p className="text-gray-300">Expected:</p>
+                <PHPDisplay
+                  value={Number(data.gaeTotal ?? 0) * Number(data.usdRate ?? 0)}
+                />
+              </div>
+              <div className="text-sm flex items-center gap-2">
+                <p className="text-gray-300">Change in USDAU:</p>
+                {typeof depositAmountInput === "number" ? (
+                  <p>
+                    USDAU{" "}
+                    {formatNumber(
+                      depositAmountInput / Number(data.usdRate) -
+                        Number(data.gaeTotal ?? 0) +
+                        Number(data.transactionFee)
+                    )}
+                  </p>
+                ) : (
+                  "--"
+                )}
+              </div>
+            </div>
+            <div className="mt-2">
+              <h1 className="text-sm font-medium mb-2">Narrative</h1>
+              <CustomTextEditor value={narrative} onChange={setNarrative} />
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="destructive"
+                onClick={() => setShowRejectDialog(true)}
+                disabled={isRejecting}
+                className="flex-1"
+              >
+                Reject
+              </Button>
+              <Button
+                onClick={() => setConfirming("approve")}
+                disabled={isApproving}
+                className="flex-1 bg-golden"
+              >
+                Approve
+              </Button>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h1 className="text-sm font-medium">Remarks</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {remarkOptions.map((option) => (
+                    <label
+                      key={option}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={remarkTags.includes(option)}
+                        onCheckedChange={(checked) => {
+                          setRemarkTags((prev) =>
+                            checked
+                              ? [...prev, option]
+                              : prev.filter((tag) => tag !== option)
+                          );
+                        }}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <CustomTextEditor
+                classes="border-0"
+                value={remarks}
+                onChange={setRemarks}
+              />
+              <Button
+                onClick={() => onRemarks(data.id, remarks, remarkTags)}
+                disabled={isRemarking}
+                className="mt-4 w-full bg-golden"
+              >
+                {isRemarking ? "Updating..." : "Update Remarks"}
+              </Button>
             </div>
           </div>
-          <CustomTextEditor value={remarks} onChange={setRemarks} />
         </div>
-        <Button
-          onClick={() => onRemarks(data.id, remarks, remarkTags)}
-          disabled={isRemarking}
-          className="cursor-pointer"
-        >
-          {isRemarking ? "Updating" : "Update"}
-        </Button>
       </DialogContent>
 
       {/* Approve confirmation */}
@@ -327,12 +305,7 @@ const GAERequestDetailsModal: React.FC<Props> = ({
             <Button
               onClick={() => {
                 if (confirming === "approve")
-                  onUpdate?.(
-                    data.id,
-                    narrative,
-                    "Open",
-                    depositAmountInput
-                  );
+                  onUpdate?.(data.id, narrative, "Open", depositAmountInput);
               }}
               disabled={isApproving}
             >

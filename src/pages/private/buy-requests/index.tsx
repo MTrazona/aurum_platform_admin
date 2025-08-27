@@ -5,6 +5,7 @@ import useBuyRequests from "@/hooks/buy-request";
 import { useTransactionRequestStats } from "@/utils/calculate-buy-requests";
 import { formatNumber } from "@/utils/format-helper";
 import BuyDataTable from "./table";
+import TransactionDetailsSheet from "@/components/sheets/gca-transaction-details-sheet";
 
 const BuyRequestsPage = () => {
   const {
@@ -21,7 +22,7 @@ const BuyRequestsPage = () => {
   const stats = useTransactionRequestStats(data);
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="space-y-6">
       <Breadcrumb />
       <h1 className="text-xl font-semibold text-white">Buy Requests</h1>
 
@@ -65,7 +66,7 @@ const BuyRequestsPage = () => {
         isLoading={isLoading}
         viewRequest={viewRequest}
       />
-      {selectedRequest && (
+      {selectedRequest && selectedRequest.transactionStatus === "Pending" ? (
         <BuyRequestDetailsModal
           data={selectedRequest}
           open={!!selectedRequest}
@@ -75,7 +76,11 @@ const BuyRequestsPage = () => {
           isApproving={isApproving}
           isRejecting={isRejecting}
         />
-      )}
+      ) :  <TransactionDetailsSheet
+          open={!!selectedRequest}
+          onClose={() => setSelectedRequest(null)}
+          transaction={selectedRequest}
+        />}
     </div>
   );
 };

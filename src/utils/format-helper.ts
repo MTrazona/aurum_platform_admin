@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TransactionsType } from "@/types/buy-request.types";
 import moment from "moment";
 
@@ -21,6 +22,10 @@ function formatPrice(amount: number, currency: string = "PHP"): string {
     minimumFractionDigits: 0,
   });
 }
+
+export const safeDate = (d?: any) => (d ? dateStringFormatter(d) : "—");
+export const safeNum = (v?: any) => (v === 0 || !!v ? String(v) : "—");
+export const safeStr = (v?: any) => (v ? String(v) : "—");
 
 export const formatTransactionCode = (code: string): string => {
   if (!code) return "";

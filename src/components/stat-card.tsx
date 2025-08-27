@@ -40,7 +40,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
   return (
     <div
-      className={`stat-color p-4 md:p-5 w-full max-w-xs sm:max-w-sm md:max-w-md ${borderColor} border overflow-hidden`}
+      className={`stat-color p-4 md:p-5 w-full max-w-xs sm:max-w-sm md:max-w-md ${borderColor} rounded-lg border overflow-hidden`}
     >
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div className="flex-1">

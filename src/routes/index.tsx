@@ -25,6 +25,7 @@ export const urls = {
   rankReq: "/rank-up-requests",
   usdauReq: "/usdau-requests",
   personalInfo: "/users/:id",
+  donatetoSave: "/donate-to-save",
 };
 export const routeList = {
   public: {
@@ -44,6 +45,7 @@ export const routeList = {
       { path: urls.rankReq, element: <RankUpRequestsPage /> },
       { path: urls.usdauReq, element: <USDAURequestsPage /> },
       { path: urls.personalInfo, element: <PersonalInfoPage /> },
+      { path: urls.donatetoSave, element: <PersonalInfoPage /> },
     ],
   },
 };

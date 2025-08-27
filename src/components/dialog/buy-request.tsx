@@ -1,21 +1,11 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useExtractReference } from "@/hooks/use-extract-reference";
 import type { TransactionsType } from "@/types/buy-request.types";
-import { dateStringFormatter } from "@/utils/format-helper";
-import { Download } from "lucide-react";
 import { useState } from "react";
-import {
-  TransformComponent,
-  TransformWrapper
-} from "react-zoom-pan-pinch";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import { PHPDisplay } from "../features/price-display";
 import { ZoomControls } from "../features/zoom-controls";
-import StatusChip from "../status-chip";
 import RejectReasonDialog from "./reject-bank-request";
 
 interface Props {
@@ -28,7 +18,6 @@ interface Props {
   isRejecting?: boolean;
 }
 
-
 const BuyRequestDetailsModal: React.FC<Props> = ({
   data,
   open,
@@ -40,42 +29,9 @@ const BuyRequestDetailsModal: React.FC<Props> = ({
 }) => {
   const [confirming, setConfirming] = useState<"approve" | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-
-  const renderAttachment = (label: string, url: string | null) => (
-    <div className="space-y-2 w-full">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-medium">{label}</p>
-        {url && (
-          <a
-            href={url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 flex items-center gap-1 hover:underline"
-          >
-            <Download className="w-4 h-4" /> Download
-          </a>
-        )}
-      </div>
-      {url ? (
-        <div className="relative border rounded h-[300px] bg-black overflow-hidden">
-          <TransformWrapper>
-            <ZoomControls />
-            <TransformComponent>
-              <img
-                src={url}
-                alt={label}
-                className="w-full h-full object-contain"
-              />
-            </TransformComponent>
-          </TransformWrapper>
-        </div>
-      ) : (
-        <div className="text-gray-400 italic border rounded p-4 h-[300px] flex items-center justify-center">
-          No {label.toLowerCase()}
-        </div>
-      )}
-    </div>
+  const { extractedReference, referenceMatch } = useExtractReference(
+    data?.receiptImageLinkUser,
+    data?.referenceNumberUser
   );
 
   const handleRejectConfirmed = (reason: string, other?: string) => {
@@ -83,111 +39,114 @@ const BuyRequestDetailsModal: React.FC<Props> = ({
     setShowRejectDialog(false);
     onClose();
   };
-
+  console.log(data);
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl lg:min-w-2xl  space-y-4 max-h-[80vh] overflow-y-auto">
-        <DialogHeader className=" bg-white p-2 border-b">
-          <div className="flex justify-between items-start">
-            <div>
-              <DialogTitle className="text-xl font-bold">
-                Review Buy Request Receipt
-              </DialogTitle>
-            </div>
-            <StatusChip status={data.transactionStatus} />
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Please review the deposit receipt and associated bank details
-            submitted by the customer. Ensure the information is valid and
-            matches the transaction request.
-          </p>
-        </DialogHeader>
+      <DialogContent className="max-w-[65vw] min-w-[65vw] rounded-lg !bg-[#171717] text-white flex flex-col overflow-hidden">
+        <div className="flex flex-col lg:flex-row gap-8 max-h-[75vh] overflow-y-auto p-8">
+          <div className="flex-1 space-y-4">
+            {referenceMatch === "loading" && (
+              <p className="text-sm text-yellow-400 italic">
+                Checking reference number...
+              </p>
+            )}
+            {referenceMatch === "matched" && (
+              <p className="text-sm text-green-400 font-semibold">
+                Reference number matched:{" "}
+                <span className="underline">{extractedReference}</span>
+              </p>
+            )}
+            {referenceMatch === "not-matched" && (
+              <p className="text-sm text-red-400 font-semibold">
+                Reference number mismatch. Found:{" "}
+                <span className="underline">{extractedReference}</span>
+              </p>
+            )}
 
-        {/* Bank Info */}
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold text-gray-700">
-            Bank & Transaction Details
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Carefully verify the payment method, reference number, and deposited
-            amount. Approval should only proceed if all information matches a
-            valid deposit.
-          </p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-3 text-sm text-gray-800">
-            <div>
-              <strong>Customer Name:</strong> {data.customer?.firstName}{" "}
-              {data.customer?.lastName}
-            </div>
-            <div>
-              <strong>Reference Number:</strong> {data.referenceNumberUser}
-            </div>
-            <div>
-              <strong>Payment Method:</strong> {data.paymentMethodUser}
-            </div>
-            <div>
-              <strong>Status:</strong> {data.transactionStatus}
-            </div>
-            <div>
-              <strong>Date Deposited:</strong>{" "}
-              {dateStringFormatter(data.depositDateUser)}
-            </div>
-            <div className="flex gap-2 items-center">
-              <strong>Amount Deposited:</strong>{" "}
-              <PHPDisplay value={data.depositedAmount} />
-            </div>
-            {data.rejectReason && (
-              <div className="col-span-2">
-                <strong>Rejection Reason:</strong> {data.rejectReasonOthers}
+            {data.receiptImageLinkUser ? (
+              <div className="relative border rounded h-auto bg-black overflow-hidden">
+                <TransformWrapper>
+                  <ZoomControls />
+                  <TransformComponent>
+                    <img
+                      src={data.receiptImageLinkUser}
+                      alt="Receipt"
+                      className="w-full h-full object-contain"
+                    />
+                  </TransformComponent>
+                </TransformWrapper>
+              </div>
+            ) : (
+              <div className="text-gray-400 italic border rounded p-4 h-[400px] flex items-center justify-center">
+                No receipt uploaded
               </div>
             )}
           </div>
-        </div>
+          <div className="flex-[0.5] mt-[34px]">
+            <div className="space-y-6 bg-[#1E1E1E] p-6 rounded-xl border border-[#3A3A3A]">
+              {/* Section Title */}
+              <h2 className="text-lg font-bold text-golden">Payment Summary</h2>
 
-        {/* Attachments */}
-        <div className="space-y-4">
-          <h3 className="text-base font-semibold text-gray-700">
-            Uploaded Receipt
-          </h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Inspect the uploaded receipt to confirm the validity of the payment.
-            Ensure the date, amount, and reference number align with the
-            provided transaction data.
-          </p>
+              <div className="grid grid-cols-1 gap-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Amount Deposited:</span>
+                  <PHPDisplay value={data.depositedAmount} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Transaction Fee:</span>
+                  <PHPDisplay value={data.transactionFee} />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1">
-            {renderAttachment("Receipt Image", data.receiptImageLinkUser)}
+              {/* Divider */}
+              <div className="border-t border-[#3A3A3A] my-2"></div>
+
+              {/* Bank Info Section */}
+              <h2 className="text-lg font-bold text-golden">Customer Info</h2>
+
+              <div className="grid grid-cols-1 gap-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Customer Name:</span>
+                  <span className="font-medium text-white">
+                    {data.customer?.firstName} {data?.customer?.lastName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Reference Number:</span>
+                  <span className="font-medium text-white">
+                    {data?.referenceNumberUser}
+                  </span>
+                </div>
+
+                {data.rejectReason && (
+                  <div className="pt-2">
+                    <span className="text-red-400 text-sm font-medium">
+                      Rejection Reason: {data.rejectReason}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="destructive"
+                onClick={() => setShowRejectDialog(true)}
+                disabled={isRejecting}
+                className="flex-1"
+              >
+                Reject
+              </Button>
+              <Button
+                onClick={() => setConfirming("approve")}
+                disabled={isApproving}
+                className="flex-1 bg-golden"
+              >
+                Approve
+              </Button>
+            </div>
           </div>
         </div>
-
-        {/* Footer Actions */}
-        {data.transactionStatus === "Pending" && (
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
-              className="cursor-pointer"
-              variant="secondary"
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => setShowRejectDialog(true)}
-              disabled={isRejecting}
-              className="cursor-pointer"
-            >
-              Reject
-            </Button>
-
-            <Button
-              onClick={() => setConfirming("approve")}
-              disabled={isApproving}
-              className="cursor-pointer"
-            >
-              Approve
-            </Button>
-          </div>
-        )}
       </DialogContent>
 
       {/* Approve confirmation */}

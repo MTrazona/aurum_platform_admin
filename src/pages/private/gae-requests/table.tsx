@@ -1,19 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import CustomDataTable from "@/components/custom-data-table";
-import { gaeRequestColumnDefs } from "./column-def";
-import type { TransactionsType } from "@/types/buy-request.types";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { TransactionsType } from "@/types/buy-request.types";
+import React, { useEffect, useRef, useState } from "react";
+import { gaeRequestColumnDefs } from "./column-def";
 
 interface GAEDataTableProps {
   gae: TransactionsType[];
@@ -26,7 +19,6 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
   isLoading,
   viewRequest,
 }) => {
-  const [selectedType, setSelectedType] = useState<string>("all");
   const [searchText, setSearchText] = useState<string>("");
   const gridParamsRef = useRef<any>(null);
 
@@ -40,27 +32,6 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
     return () => clearTimeout(timeout);
   }, [searchText]);
 
-  const handleTypeChange = (value: string) => {
-    setSelectedType(value);
-
-    if (!gridParamsRef.current) return;
-
-    const api = gridParamsRef.current.api;
-
-    if (value === "all") {
-      api.setFilterModel(null);
-    } else {
-      api.setFilterModel({
-        transactionType: {
-          type: "equals",
-          filter: value,
-        },
-      });
-    }
-
-    api.onFilterChanged();
-  };
-
   const handleGridReady = (params: any) => {
     gridParamsRef.current = params;
   };
@@ -68,25 +39,7 @@ const GAEDataTable: React.FC<GAEDataTableProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="type-filter" className="text-white">
-            Filter by Transaction Type:
-          </Label>
-          <Select value={selectedType} onValueChange={handleTypeChange}>
-            <SelectTrigger
-              className="w-[200px] bg-white cursor-pointer"
-              id="type-filter"
-            >
-              <SelectValue placeholder="Select Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="gae">GAE</SelectItem>
-              <SelectItem value="gae extra">GAE Extra</SelectItem>
-              <SelectItem value="gae ph">GAE PH</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+     
 
         <div className="flex items-center gap-2">
           <Label htmlFor="quick-search" className="text-white">

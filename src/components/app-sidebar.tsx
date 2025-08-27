@@ -69,6 +69,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       items: [
         { title: "USDAU Request", url: urls.usdauReq, icon: Building2 },
         { title: "Rankup Request", url: urls.rankReq, icon: ArrowUpCircle },
+        { title: "Donate To Save", url: urls.donatetoSave, icon: ArrowUpCircle },
       ],
     },
   ];

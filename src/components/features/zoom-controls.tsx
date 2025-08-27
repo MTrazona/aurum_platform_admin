@@ -7,13 +7,13 @@ export const ZoomControls = () => {
   return (
     <div className="absolute top-2 right-2 flex gap-1 bg-white p-1 rounded shadow z-10">
       <Button size="icon" variant="ghost" onClick={() => zoomIn()}>
-        <ZoomIn className="w-4 h-4" />
+        <ZoomIn className="w-4 h-4 text-black" />
       </Button>
       <Button size="icon" variant="ghost" onClick={() => zoomOut()}>
-        <ZoomOut className="w-4 h-4" />
+        <ZoomOut className="w-4 h-4 text-black" />
       </Button>
       <Button size="icon" variant="ghost" onClick={() => resetTransform()}>
-        <RotateCcw className="w-4 h-4" />
+        <RotateCcw className="w-4 h-4 text-black" />
       </Button>
     </div>
   );
