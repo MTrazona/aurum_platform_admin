@@ -63,6 +63,7 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
       api.setFilterModel({
         ...existing,
         customerEmail: {
+          filterType: "text",
           type: "equals",
           filter: value,
         },
