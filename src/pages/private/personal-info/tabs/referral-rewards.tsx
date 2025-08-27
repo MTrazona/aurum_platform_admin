@@ -1,44 +1,39 @@
-
-import CustomDataTable from "@/components/custom-data-table";
 import type { ReferralReward } from "@/types/personalinfo";
 import { safeDate, safeStr, safeNum } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: ReferralReward[] | undefined;
-  loading?: boolean;
 }
 
-export default function ReferralRewardsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((r) => ({
-        id: r.id,
-        createdAt: safeDate(r.createdAt),
-        type: safeStr(r.transactionType),
-        ranking: safeStr(r.ranking),
-        commission: safeStr(r.commission),
-        txnAmount: safeStr(r.transactionAmount),
-        refCommission: safeStr(r.referralCommission),
-        commissionAmount: safeStr(r.commissionAmount),
-        fromUserId: safeNum(r.fromUserId),
-      })),
-    [data]
-  );
+export default function ReferralRewardsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Referral Rewards</CardTitle>
+          <CardDescription>No rewards found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "createdAt", headerName: "Date", filter: true },
-      { field: "type", headerName: "Txn Type", filter: true },
-      { field: "ranking", headerName: "Rank", filter: true },
-      { field: "commission", headerName: "Commission", filter: true },
-      { field: "txnAmount", headerName: "Txn Amount", filter: true },
-      { field: "refCommission", headerName: "Ref %", filter: true },
-      { field: "commissionAmount", headerName: "Commission Amt", filter: true },
-      { field: "fromUserId", headerName: "From User ID", filter: true },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((r) => (
+        <Card key={r.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeStr(r.transactionType)} • {safeStr(r.ranking)}</CardTitle>
+            <CardDescription>{safeDate(r.createdAt)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div><span className="text-muted-foreground">Txn Amount:</span> {safeStr(r.transactionAmount)}</div>
+            <div><span className="text-muted-foreground">Ref %:</span> {safeStr(r.referralCommission)}</div>
+            <div><span className="text-muted-foreground">Commission:</span> {safeStr(r.commission)} ({safeStr(r.commissionAmount)})</div>
+            <div><span className="text-muted-foreground">From User ID:</span> {safeNum(r.fromUserId)}</div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }

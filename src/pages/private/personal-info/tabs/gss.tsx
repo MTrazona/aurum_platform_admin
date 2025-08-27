@@ -1,40 +1,40 @@
-
-import CustomDataTable from "@/components/custom-data-table";
 import type { Group } from "@/types/personalinfo";
 import { safeStr, safeDate } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: Group[] | undefined;
-  loading?: boolean;
 }
 
-export default function GroupSharedSavingsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((g) => ({
-        id: g.id,
-        name: safeStr(g.groupName),
-        lockedTokens: safeStr(g.lockedTokens),
-        currency: safeStr(g.currency),
-        status: safeStr(g.groupStatus),
-        balance: safeStr(g.groupBalance),
-        startDate: safeDate(g.startDate),
-      })),
-    [data]
-  );
+export default function GroupSharedSavingsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Group Shared Savings</CardTitle>
+          <CardDescription>No shared savings found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "name", headerName: "Group", filter: true },
-      { field: "lockedTokens", headerName: "Locked", filter: true },
-      { field: "currency", headerName: "CCY", width: 90 },
-      { field: "status", headerName: "Status", filter: true },
-      { field: "balance", headerName: "Balance", filter: true },
-      { field: "startDate", headerName: "Start", filter: true },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((g) => (
+        <Card key={g.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeStr(g.groupName)}</CardTitle>
+            <CardDescription>{safeStr(g.groupStatus)} • {safeDate(g.startDate)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-muted-foreground">Locked:</span> {safeStr(g.lockedTokens)}</div>
+              <div><span className="text-muted-foreground">Balance:</span> {safeStr(g.groupBalance)}</div>
+              <div><span className="text-muted-foreground">CCY:</span> {safeStr(g.currency)}</div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }
