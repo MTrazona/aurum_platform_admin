@@ -10,11 +10,21 @@ import type {
   ColDef,
   ICellRendererParams,
   ValueFormatterParams,
+  ValueGetterParams,
 } from "ag-grid-community";
 
 export const transactionColumnDefs = (
   onViewClick: (transaction: TransactionsType) => void
 ): ColDef<TransactionsType>[] => [
+  {
+    headerName: "Customer Email",
+    colId: "customerEmail",
+    hide: true,
+    filter: "agTextColumnFilter",
+    filterParams: { buttons: ["reset", "apply"] },
+    valueGetter: ({ data }: ValueGetterParams<TransactionsType, string>) =>
+      (data as any)?.customer?.email ?? "",
+  },
   {
     headerName: "Transaction Code",
     field: "transactionCode",
