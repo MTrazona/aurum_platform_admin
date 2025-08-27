@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { TransactionsType } from "@/types/buy-request.types";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { transactionColumnDefs } from "./column-def";
 import useUsersHooks from "@/hooks/use-users";
 import UserSearchCommand from "@/components/features/user-search-command";
@@ -24,7 +24,6 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
 }) => {
   const [searchText, setSearchText] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<string>("all");
-  const gridParamsRef = useRef<any>(null);
   const { data: users = [] } = useUsersHooks();
 
   const userOptions = useMemo(() => {
@@ -34,42 +33,23 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
     }));
   }, [users]);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (gridParamsRef.current) {
-        gridParamsRef.current!.api.setGridOption("quickFilterText", searchText);
-      }
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchText]);
-
-
-  const handleGridReady = (params: any) => {
-    gridParamsRef.current = params;
-  };
+  const filteredTransactions = useMemo(() => {
+    let result = transactions;
+    if (selectedUser !== "all") {
+      result = result.filter((t: any) => t?.customer?.email === selectedUser);
+    }
+    const q = searchText.trim().toLowerCase();
+    if (q) {
+      result = result.filter((t) => {
+        const combined = `${t.transactionCode} ${t.transactionType} ${t.transactionStatus} ${t.fromValue} ${t.toValue} ${(t as any)?.customer?.email ?? ""}`.toLowerCase();
+        return combined.includes(q);
+      });
+    }
+    return result;
+  }, [transactions, selectedUser, searchText]);
 
   const handleUserChange = (value: string) => {
     setSelectedUser(value);
-    if (!gridParamsRef.current) return;
-
-    const api = gridParamsRef.current.api;
-    if (value === "all") {
-      const currentFilter = api.getFilterModel() || {};
-      delete (currentFilter as any)["customerEmail"];
-      api.setFilterModel(Object.keys(currentFilter).length ? currentFilter : null);
-    } else {
-      const existing = api.getFilterModel() || {};
-      api.setFilterModel({
-        ...existing,
-        customerEmail: {
-          filterType: "text",
-          type: "equals",
-          filter: value,
-        },
-      });
-    }
-    api.onFilterChanged();
   };
 
   return (
@@ -117,9 +97,8 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
 
       <CustomDataTable
         columnDefs={transactionColumnDefs(onViewClick)}
-        rowData={transactions}
+        rowData={filteredTransactions}
         loading={isLoading}
-        onGridReady={handleGridReady}
       />
     </div>
   );
