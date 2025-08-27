@@ -26,6 +26,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WalletAddressModal } from "@/components/dialog/wallet-address";
 
 import type { PersonalInfo } from "@/types/personalinfo";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import StatusChip from "@/components/status-chip";
+import {
+  dateStringFormatter,
+  formatNumber,
+  formatTransactionCode,
+  safeStr,
+} from "@/utils/format-helper";
 
 const PersonalInfoPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -272,17 +288,307 @@ const PersonalInfoPage = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="details" className="w-[400px]">
+      <Tabs defaultValue="details" className="w-full">
         <TabsList>
-          <TabsTrigger value="details">{personalInfo.firstName} {personalInfo.lastName}'s Profile</TabsTrigger>
+          <TabsTrigger value="details">
+            {personalInfo.firstName} {personalInfo.lastName}'s Profile
+          </TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="referrals">Referrals</TabsTrigger>
           <TabsTrigger value="gds">Group Decentralized Staking</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
-          Make changes to your account here.
+
+        <TabsContent value="details" className="mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+            {/* Left summary column */}
+            <div className="col-span-1 lg:col-span-2 space-y-4">
+              <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Account Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">KYC</span>
+                    <StatusChip status={personalInfo.kycVerified || "Unknown"} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Email</span>
+                    <StatusChip status={personalInfo.isVerifyEmail ? "Verified" : "Not Verified"} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Login Status</span>
+                    <StatusChip status={personalInfo.login_attempt?.loginStatus || "Unknown"} />
+                  </div>
+                  {personalInfo.blocked && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/70">Account</span>
+                      <StatusChip status="Blocked" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Security</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">MFA</span>
+                    <StatusChip status={personalInfo.mfa_set_enable?.mfaEnabled ? "Active" : "Inactive"} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Provider</span>
+                    <span className="text-white">{safeStr(personalInfo.provider)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Bank Verifications</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Total Records</span>
+                    <span className="text-white">{personalInfo.bank_verifications?.length || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Approved</span>
+                    <span className="text-white">
+                      {personalInfo.bank_verifications?.filter((b) => b.statusOfVerification === "Approved").length || 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/70">Pending</span>
+                    <span className="text-white">
+                      {personalInfo.bank_verifications?.filter((b) => b.statusOfVerification === "Pending").length || 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right details column */}
+            <div className="col-span-1 lg:col-span-5 space-y-4">
+              <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-white/70">Full Name</p>
+                    <p className="text-white">
+                      {safeStr(personalInfo.personal_information?.firstName)} {safeStr(personalInfo.personal_information?.lastName)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Username</p>
+                    <p className="text-white">{safeStr(String(personalInfo.username))}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Email</p>
+                    <div className="flex items-center gap-2 text-white">
+                      <span className="truncate">{personalInfo.email}</span>
+                      <button onClick={() => handleCopy(personalInfo.email)} className="text-gray-400 hover:text-gray-200">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Phone</p>
+                    <p className="text-white">{safeStr(personalInfo.phoneNumber)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Country</p>
+                    <p className="text-white">{safeStr(personalInfo.country)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">User Hash</p>
+                    <div className="flex items-center gap-2 text-white">
+                      <span className="truncate">{safeStr(personalInfo.userHash)}</span>
+                      {personalInfo.userHash && (
+                        <button onClick={() => handleCopy(personalInfo.userHash)} className="text-gray-400 hover:text-gray-200">
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Identity & Address</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-white/70">ID Type</p>
+                    <p className="text-white">{safeStr(personalInfo.personal_information?.idType as any)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">ID Number</p>
+                    <p className="text-white">{safeStr(personalInfo.personal_information?.idNumber as any)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Address</p>
+                    <p className="text-white">{safeStr(personalInfo.personal_information?.address as any)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">City</p>
+                    <p className="text-white">{safeStr(personalInfo.personal_information?.city as any)}</p>
+                  </div>
+                  <div>
+                    <p className="text-white/70">Postal Code</p>
+                    <p className="text-white">{safeStr(personalInfo.personal_information?.postalCode as any)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </TabsContent>
-        <TabsContent value="password">Change your password here.</TabsContent>
+
+        <TabsContent value="transactions" className="mt-4">
+          <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-white">Recent Transactions</h3>
+              <p className="text-xs text-white/70">A consolidated list of transactions associated with this user.</p>
+            </div>
+            {personalInfo.transactions && personalInfo.transactions.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {personalInfo.transactions.map((tx) => (
+                    <TableRow key={tx.id}>
+                      <TableCell className="text-white">{formatTransactionCode(tx.transactionCode)}</TableCell>
+                      <TableCell className="text-white">{String(tx.transactionType)}</TableCell>
+                      <TableCell className="text-white">
+                        {String(tx.fromCurrency)} {formatNumber(tx.fromValue)}
+                      </TableCell>
+                      <TableCell className="text-white">
+                        {String(tx.toCurrency)} {formatNumber(tx.toValue)}
+                      </TableCell>
+                      <TableCell className="text-white">
+                        <StatusChip status={String(tx.transactionStatus)} />
+                      </TableCell>
+                      <TableCell className="text-white">{dateStringFormatter(tx.createdAt as unknown as string)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableCaption className="text-white/70">Showing {personalInfo.transactions.length} transaction(s)</TableCaption>
+              </Table>
+            ) : (
+              <div className="text-sm text-white/70">No transactions found for this user.</div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="referrals" className="mt-4">
+          <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-white">Referral Rewards</h3>
+              <p className="text-xs text-white/70">Transactions and commissions earned through referrals.</p>
+            </div>
+            {personalInfo.referral_rewards && personalInfo.referral_rewards.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Ranking</TableHead>
+                    <TableHead>Commission</TableHead>
+                    <TableHead>Transaction Amount</TableHead>
+                    <TableHead>Referral Commission</TableHead>
+                    <TableHead>Commission Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {personalInfo.referral_rewards.map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell className="text-white">{String(r.transactionType)}</TableCell>
+                      <TableCell className="text-white">{String(r.ranking)}</TableCell>
+                      <TableCell className="text-white">{String(r.commission)}</TableCell>
+                      <TableCell className="text-white">USDT {formatNumber(r.transactionAmount)}</TableCell>
+                      <TableCell className="text-white">{formatNumber(r.referralCommission)}</TableCell>
+                      <TableCell className="text-white">USDT {formatNumber(r.commissionAmount)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <TableCaption className="text-white/70">Showing {personalInfo.referral_rewards.length} referral record(s)</TableCaption>
+              </Table>
+            ) : (
+              <div className="text-sm text-white/70">No referral rewards found for this user.</div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="gds" className="mt-4">
+          <div className="space-y-4">
+            <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-white">Groups</h3>
+                <p className="text-xs text-white/70">Group Decentralized Staking memberships and balances.</p>
+              </div>
+              {personalInfo.group && personalInfo.group.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Members</TableHead>
+                      <TableHead>Monthly Contri</TableHead>
+                      <TableHead>Balance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {personalInfo.group.map((g) => (
+                      <TableRow key={g.id}>
+                        <TableCell className="text-white">{g.groupName}</TableCell>
+                        <TableCell className="text-white">{g.groupStatus}</TableCell>
+                        <TableCell className="text-white">{g.members}</TableCell>
+                        <TableCell className="text-white">{g.monthlyContri}</TableCell>
+                        <TableCell className="text-white">{g.groupBalance}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <TableCaption className="text-white/70">Showing {personalInfo.group.length} group(s)</TableCaption>
+                </Table>
+              ) : (
+                <div className="text-sm text-white/70">No groups found for this user.</div>
+              )}
+            </div>
+
+            <div className="rounded-xl bg-[#1E1E20]/20 p-4">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-white">Group Shared Transactions</h3>
+                <p className="text-xs text-white/70">Activity within the user's group savings.</p>
+              </div>
+              {personalInfo.group_shared_transactions && personalInfo.group_shared_transactions.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tx Hash</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Initial Contri</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {personalInfo.group_shared_transactions.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell className="text-white">{t.transHash}</TableCell>
+                        <TableCell className="text-white">{t.TransactionStatus}</TableCell>
+                        <TableCell className="text-white">{t.initialContri}</TableCell>
+                        <TableCell className="text-white">{dateStringFormatter(t.createdAt as unknown as string)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <TableCaption className="text-white/70">Showing {personalInfo.group_shared_transactions.length} shared transaction(s)</TableCaption>
+                </Table>
+              ) : (
+                <div className="text-sm text-white/70">No group shared transactions found.</div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
       <WalletAddressModal
         isOpen={isWalletOpen}
