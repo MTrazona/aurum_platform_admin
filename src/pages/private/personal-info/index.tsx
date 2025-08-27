@@ -7,8 +7,7 @@ import { fetchUsersInfoById, getWalletAddress, UnblockedBlockUser, UnlockLockedU
 import StatusChip from "@/components/status-chip";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 // import { dateStringFormatter } from "@/utils/format-helper";
@@ -298,76 +297,80 @@ const PersonalInfoPage = () => {
           </div>
         </div>
 
-        {/* Right: Key sections (reduced tabs) */}
+        {/* Right: Tabbed sections */}
         <div className="col-span-5 space-y-4">
           <div className="rounded-xl bg-white p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg text-[#3C4056]">Recent Transactions ({counts.transactions})</h2>
-            </div>
-            <TransactionsTab data={personalInfo.transactions} loading={loading} />
-          </div>
+            <Tabs defaultValue="transactions" className="w-full">
+              <div className="mb-2">
+                <h2 className="font-semibold text-lg text-[#3C4056]">User Details</h2>
+              </div>
+              <TabsList className="flex-wrap">
+                <TabsTrigger value="transactions">Transactions ({counts.transactions})</TabsTrigger>
+                <TabsTrigger value="referrals">Referrals ({counts.referrals})</TabsTrigger>
+                <TabsTrigger value="rewards">Rewards ({counts.referralRewards + counts.customerRewards + counts.directDepositRewards})</TabsTrigger>
+                <TabsTrigger value="groups">Groups ({counts.groups})</TabsTrigger>
+                <TabsTrigger value="requests">Requests ({counts.usdauRequests})</TabsTrigger>
+                <TabsTrigger value="verifications">Verifications ({counts.bankVerifications})</TabsTrigger>
+                <TabsTrigger value="remits">Remittances ({counts.remitsSender + counts.remitsReceiver})</TabsTrigger>
+                <TabsTrigger value="transfers">Transfers ({counts.transferSender + counts.transferReceiver})</TabsTrigger>
+              </TabsList>
 
-          <Collapsible>
-            <div className="rounded-xl bg-white p-4">
-              <CollapsibleTrigger asChild>
-                <button className="w-full text-left font-semibold text-lg text-[#3C4056]">Referrals ({counts.referrals})</button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mt-4">
+              <TabsContent value="transactions">
+                <div className="mt-2">
+                  <TransactionsTab data={personalInfo.transactions} loading={loading} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="referrals">
+                <div className="mt-2">
                   <ReferralsTab data={personalInfo.referralsFK} />
                 </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+              </TabsContent>
 
-          <Collapsible>
-            <div className="rounded-xl bg-white p-4">
-              <CollapsibleTrigger asChild>
-                <button className="w-full text-left font-semibold text-lg text-[#3C4056]">Rewards ({counts.referralRewards + counts.customerRewards + counts.directDepositRewards})</button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mt-4 space-y-4">
+              <TabsContent value="rewards">
+                <div className="mt-2 space-y-4">
                   <ReferralRewardsTab data={personalInfo.referral_rewards} />
                   <CustomerRewardsTab data={personalInfo.customer_reward_details} />
                   <DirectDepositRewardsTab data={personalInfo.direct_deposit_rewards} />
                 </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+              </TabsContent>
 
-          <Collapsible>
-            <div className="rounded-xl bg-white p-4">
-              <CollapsibleTrigger asChild>
-                <button className="w-full text-left font-semibold text-lg text-[#3C4056]">Groups ({counts.groups}) & Shared ({counts.groupSharedSavings})</button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mt-4 space-y-4">
+              <TabsContent value="groups">
+                <div className="mt-2 space-y-4">
                   <GroupsTab data={personalInfo.group} />
                   <GroupSharedSavingsTab data={personalInfo.group_shared_savings} />
                   <GroupMonthlyTxTab data={personalInfo.group_monthly_transactions} />
                   <GroupSharedTxTab data={personalInfo.group_shared_transactions} />
                 </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+              </TabsContent>
 
-          <Collapsible>
-            <div className="rounded-xl bg-white p-4">
-              <CollapsibleTrigger asChild>
-                <button className="w-full text-left font-semibold text-lg text-[#3C4056]">Requests & Transfers</button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="mt-4 space-y-4">
+              <TabsContent value="requests">
+                <div className="mt-2">
                   <UsdauRequestsTab data={personalInfo.usdau_requests} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="verifications">
+                <div className="mt-2">
                   <BankVerificationsTab data={personalInfo.bank_verifications} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="remits">
+                <div className="mt-2 space-y-4">
                   <RemitsTab data={personalInfo.remitsSender} />
                   <RemitsTab data={personalInfo.remitsReceiver} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="transfers">
+                <div className="mt-2 space-y-4">
                   <TransferUsdauTab data={personalInfo.transferUsdauSender} />
                   <TransferUsdauTab data={personalInfo.transferUsdauReceiver} />
                 </div>
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
       <WalletAddressModal isOpen={isWalletOpen} walletAddress={walletAddress} onClose={() => setIsWalletOpen(false)} />
