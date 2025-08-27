@@ -26,6 +26,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WalletAddressModal } from "@/components/dialog/wallet-address";
 
 import type { PersonalInfo } from "@/types/personalinfo";
+import DetailsTab from "./tabs/details";
+import TransactionsTab from "./tabs/transactions";
+import ReferralsTab from "./tabs/referrals";
+import GDSTab from "./tabs/gds";
 
 const PersonalInfoPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -272,17 +276,25 @@ const PersonalInfoPage = () => {
           </div>
         </div>
       </div>
-      <Tabs defaultValue="details" className="w-[400px]">
-        <TabsList>
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList className="max-w-full overflow-x-auto">
           <TabsTrigger value="details">{personalInfo.firstName} {personalInfo.lastName}'s Profile</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="referrals">Referrals</TabsTrigger>
           <TabsTrigger value="gds">Group Decentralized Staking</TabsTrigger>
         </TabsList>
-        <TabsContent value="account">
-          Make changes to your account here.
+        <TabsContent value="details" className="mt-4">
+          <DetailsTab personalInfo={personalInfo as PersonalInfo} />
         </TabsContent>
-        <TabsContent value="password">Change your password here.</TabsContent>
+        <TabsContent value="transactions" className="mt-4">
+          <TransactionsTab transactions={personalInfo.transactions || []} loading={loading} />
+        </TabsContent>
+        <TabsContent value="referrals" className="mt-4">
+          <ReferralsTab referrals={personalInfo.referral_rewards || []} loading={loading} />
+        </TabsContent>
+        <TabsContent value="gds" className="mt-4">
+          <GDSTab groups={personalInfo.group || []} loading={loading} />
+        </TabsContent>
       </Tabs>
       <WalletAddressModal
         isOpen={isWalletOpen}
