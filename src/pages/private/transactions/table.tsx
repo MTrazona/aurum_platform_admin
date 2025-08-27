@@ -9,6 +9,7 @@ import type { TransactionsType } from "@/types/buy-request.types";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { transactionColumnDefs } from "./column-def";
 import useUsersHooks from "@/hooks/use-users";
+import UserSearchCommand from "@/components/features/user-search-command";
 
 interface TransactionsDataTableProps {
   transactions: TransactionsType[];
@@ -73,6 +74,13 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2 ml-auto">
+          <UserSearchCommand
+            users={users}
+            buttonText="Search Users for Filter (⌘K)"
+            onSelect={(u) => handleUserChange(u.email)}
+          />
+        </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="user-filter" className="text-white">
             Filter by User:

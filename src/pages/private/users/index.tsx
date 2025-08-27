@@ -6,7 +6,6 @@ import { WalletAddressModal } from "@/components/dialog/wallet-address";
 import Breadcrumb from "@/components/routes-bread-crumb";
 import { Ban, Clock3, ShieldCheck, Users } from "lucide-react";
 import UsersDataTable from "./table";
-import UserSearchCommand from "@/components/features/user-search-command";
 
 export default function UsersPage() {
   const {
@@ -79,9 +78,6 @@ export default function UsersPage() {
           icon={Clock3}
           color="orange"
         />
-      </div>
-      <div className="flex justify-end">
-        <UserSearchCommand users={users} />
       </div>
       <UsersDataTable
         isLoading={isLoading}
