@@ -2,6 +2,7 @@
 import type { CustomerRewardDetail } from "@/types/personalinfo";
 import StatusChip from "@/components/status-chip";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 import { safeDate, safeStr } from "@/utils/format-helper";
  
 
@@ -23,8 +24,9 @@ export default function CustomerRewardsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((c) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(c) => (
         <Card key={c.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeStr(c.typeOfTransaction)}</CardTitle>
@@ -36,7 +38,7 @@ export default function CustomerRewardsTab({ data = [] }: Props) {
             <div><span className="text-muted-foreground">Distributed:</span> {safeDate(c.dateDistributed)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

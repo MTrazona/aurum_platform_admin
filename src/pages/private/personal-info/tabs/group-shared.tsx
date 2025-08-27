@@ -3,6 +3,7 @@ import StatusChip from "@/components/status-chip";
 import type { GroupSharedTransaction } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: GroupSharedTransaction[] | undefined;
@@ -21,8 +22,9 @@ export default function GroupSharedTxTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((g) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(g) => (
         <Card key={g.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeDate(g.createdAt)}</CardTitle>
@@ -33,7 +35,7 @@ export default function GroupSharedTxTab({ data = [] }: Props) {
             <div className="flex items-center gap-2"><span className="text-muted-foreground">Status:</span> <StatusChip status={safeStr(g.TransactionStatus)} /></div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }
