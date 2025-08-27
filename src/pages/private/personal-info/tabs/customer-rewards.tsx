@@ -1,40 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CustomerRewardDetail } from "@/types/personalinfo";
 import StatusChip from "@/components/status-chip";
-import CustomDataTable from "@/components/custom-data-table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { safeDate, safeStr } from "@/utils/format-helper";
-import { useMemo } from "react";
+ 
 
 interface Props {
   data: CustomerRewardDetail[] | undefined;
   loading?: boolean;
 }
 
-export default function CustomerRewardsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((c) => ({
-        id: c.id,
-        monthOf: safeDate(c.monthOf),
-        type: safeStr(c.typeOfTransaction),
-        amount: safeStr(c.amountReceive),
-        status: safeStr(c.statusOf),
-        distributed: safeDate(c.dateDistributed),
-      })),
-    [data]
-  );
+export default function CustomerRewardsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Customer Rewards</CardTitle>
+          <CardDescription>No customer rewards found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "monthOf", headerName: "Month", filter: true },
-      { field: "type", headerName: "Type", filter: true },
-      { field: "amount", headerName: "Amount", filter: true },
-      { field: "status", headerName: "Status", filter: true,
-        cellRenderer: (p:any) => <StatusChip status={p?.value} /> },
-      { field: "distributed", headerName: "Distributed On", filter: true },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((c) => (
+        <Card key={c.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeStr(c.typeOfTransaction)}</CardTitle>
+            <CardDescription>{safeDate(c.monthOf)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div><span className="text-muted-foreground">Amount:</span> {safeStr(c.amountReceive)}</div>
+            <div className="flex items-center gap-2"><span className="text-muted-foreground">Status:</span> <StatusChip status={safeStr(c.statusOf)} /></div>
+            <div><span className="text-muted-foreground">Distributed:</span> {safeDate(c.dateDistributed)}</div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }

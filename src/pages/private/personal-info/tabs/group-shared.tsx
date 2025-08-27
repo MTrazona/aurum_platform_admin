@@ -1,38 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import CustomDataTable from "@/components/custom-data-table";
 import StatusChip from "@/components/status-chip";
 import type { GroupSharedTransaction } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: GroupSharedTransaction[] | undefined;
-  loading?: boolean;
 }
 
-export default function GroupSharedTxTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((g) => ({
-        id: g.id,
-        createdAt: safeDate(g.createdAt),
-        transHash: safeStr(g.transHash),
-        initialContri: safeStr(g.initialContri),
-        status: safeStr(g.TransactionStatus),
-      })),
-    [data]
-  );
+export default function GroupSharedTxTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Group Shared Transactions</CardTitle>
+          <CardDescription>No shared transactions found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "createdAt", headerName: "Date", filter: true },
-      { field: "transHash", headerName: "Tx Hash", filter: true },
-      { field: "initialContri", headerName: "Initial Contri", filter: true },
-      { field: "status", headerName: "Status", filter: true,
-        cellRenderer: (p:any) => <StatusChip status={p?.value} /> },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((g) => (
+        <Card key={g.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeDate(g.createdAt)}</CardTitle>
+            <CardDescription>Initial {safeStr(g.initialContri)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div><span className="text-muted-foreground">Tx Hash:</span> {safeStr(g.transHash)}</div>
+            <div className="flex items-center gap-2"><span className="text-muted-foreground">Status:</span> <StatusChip status={safeStr(g.TransactionStatus)} /></div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }

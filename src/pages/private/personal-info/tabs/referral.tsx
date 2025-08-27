@@ -1,40 +1,39 @@
-
-import CustomDataTable from "@/components/custom-data-table";
 import type { CustomerRank } from "@/types/personalinfo";
 import { safeStr, safeDate } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: CustomerRank[] | undefined;
-  loading?: boolean;
 }
 
-export default function ReferralsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((r) => ({
-        id: r.id,
-        doc: safeStr(r.documentId),
-        date: safeDate(r.createdAt),
-        rankStatus: safeStr(r.rankStatus),
-        refCode: safeStr(r.referrerCode),
-        userType: safeStr(r.userType),
-        description: safeStr(r.description),
-      })),
-    [data]
-  );
+export default function ReferralsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Referrals</CardTitle>
+          <CardDescription>No referrals found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "date", headerName: "Date", filter: true },
-      { field: "doc", headerName: "Document ID", filter: true },
-      { field: "rankStatus", headerName: "Rank Status", filter: true },
-      { field: "refCode", headerName: "Referrer Code", filter: true },
-      { field: "userType", headerName: "User Type", filter: true },
-      { field: "description", headerName: "Description", filter: true, flex: 1 },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((r) => (
+        <Card key={r.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeStr(r.rankStatus) || "Referral"}</CardTitle>
+            <CardDescription>{safeDate(r.createdAt)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div><span className="text-muted-foreground">Document:</span> {safeStr(r.documentId)}</div>
+            <div><span className="text-muted-foreground">Ref Code:</span> {safeStr(r.referrerCode)}</div>
+            <div><span className="text-muted-foreground">User Type:</span> {safeStr(r.userType)}</div>
+            <div className="line-clamp-2"><span className="text-muted-foreground">Description:</span> {safeStr(r.description)}</div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }

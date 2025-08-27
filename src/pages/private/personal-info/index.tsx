@@ -314,7 +314,7 @@ const PersonalInfoPage = () => {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="mt-4">
-                  <ReferralsTab data={personalInfo.referralsFK} loading={loading} />
+                  <ReferralsTab data={personalInfo.referralsFK} />
                 </div>
               </CollapsibleContent>
             </div>
@@ -327,9 +327,9 @@ const PersonalInfoPage = () => {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="mt-4 space-y-4">
-                  <ReferralRewardsTab data={personalInfo.referral_rewards} loading={loading} />
-                  <CustomerRewardsTab data={personalInfo.customer_reward_details} loading={loading} />
-                  <DirectDepositRewardsTab data={personalInfo.direct_deposit_rewards} loading={loading} />
+                  <ReferralRewardsTab data={personalInfo.referral_rewards} />
+                  <CustomerRewardsTab data={personalInfo.customer_reward_details} />
+                  <DirectDepositRewardsTab data={personalInfo.direct_deposit_rewards} />
                 </div>
               </CollapsibleContent>
             </div>
@@ -342,10 +342,10 @@ const PersonalInfoPage = () => {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="mt-4 space-y-4">
-                  <GroupsTab data={personalInfo.group} loading={loading} />
-                  <GroupSharedSavingsTab data={personalInfo.group_shared_savings} loading={loading} />
-                  <GroupMonthlyTxTab data={personalInfo.group_monthly_transactions} loading={loading} />
-                  <GroupSharedTxTab data={personalInfo.group_shared_transactions} loading={loading} />
+                  <GroupsTab data={personalInfo.group} />
+                  <GroupSharedSavingsTab data={personalInfo.group_shared_savings} />
+                  <GroupMonthlyTxTab data={personalInfo.group_monthly_transactions} />
+                  <GroupSharedTxTab data={personalInfo.group_shared_transactions} />
                 </div>
               </CollapsibleContent>
             </div>
@@ -358,12 +358,12 @@ const PersonalInfoPage = () => {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <div className="mt-4 space-y-4">
-                  <UsdauRequestsTab data={personalInfo.usdau_requests} loading={loading} />
-                  <BankVerificationsTab data={personalInfo.bank_verifications} loading={loading} />
-                  <RemitsTab data={personalInfo.remitsSender} loading={loading} />
-                  <RemitsTab data={personalInfo.remitsReceiver} loading={loading} />
-                  <TransferUsdauTab data={personalInfo.transferUsdauSender} loading={loading} />
-                  <TransferUsdauTab data={personalInfo.transferUsdauReceiver} loading={loading} />
+                  <UsdauRequestsTab data={personalInfo.usdau_requests} />
+                  <BankVerificationsTab data={personalInfo.bank_verifications} />
+                  <RemitsTab data={personalInfo.remitsSender} />
+                  <RemitsTab data={personalInfo.remitsReceiver} />
+                  <TransferUsdauTab data={personalInfo.transferUsdauSender} />
+                  <TransferUsdauTab data={personalInfo.transferUsdauReceiver} />
                 </div>
               </CollapsibleContent>
             </div>

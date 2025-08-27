@@ -1,44 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import CustomDataTable from "@/components/custom-data-table";
 import StatusChip from "@/components/status-chip";
 import type { UsdauRequest } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: UsdauRequest[] | undefined;
-  loading?: boolean;
 }
 
-export default function UsdauRequestsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((u) => ({
-        id: u.id,
-        date: safeDate(u.dateRequest),
-        amount: safeStr(u.amountRequest),
-        wallet: safeStr(u.walletAddress),
-        fromValue: safeStr(u.fromValue),
-        usdRate: safeStr(u.usdRate),
-        fee: safeStr(u.fee),
-        status: safeStr(u.requestStatus),
-      })),
-    [data]
-  );
+export default function UsdauRequestsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>USDAU Requests</CardTitle>
+          <CardDescription>No requests found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "date", headerName: "Date", filter: true },
-      { field: "amount", headerName: "Amount", filter: true },
-      { field: "wallet", headerName: "Wallet Address", filter: true, flex: 1 },
-      { field: "fromValue", headerName: "From Value", filter: true },
-      { field: "usdRate", headerName: "USD Rate", filter: true },
-      { field: "fee", headerName: "Fee", filter: true },
-      { field: "status", headerName: "Status", filter: true,
-        cellRenderer: (p:any) => <StatusChip status={p?.value} /> },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((u) => (
+        <Card key={u.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeDate(u.dateRequest)}</CardTitle>
+            <CardDescription>Amount {safeStr(u.amountRequest)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div><span className="text-muted-foreground">Wallet:</span> {safeStr(u.walletAddress)}</div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-muted-foreground">From Value:</span> {safeStr(u.fromValue)}</div>
+              <div><span className="text-muted-foreground">USD Rate:</span> {safeStr(u.usdRate)}</div>
+              <div><span className="text-muted-foreground">Fee:</span> {safeStr(u.fee)}</div>
+            </div>
+            <div className="flex items-center gap-2"><span className="text-muted-foreground">Status:</span> <StatusChip status={safeStr(u.requestStatus)} /></div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }

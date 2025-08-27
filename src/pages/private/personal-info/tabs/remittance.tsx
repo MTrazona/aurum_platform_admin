@@ -1,37 +1,40 @@
-import CustomDataTable from "@/components/custom-data-table";
 import type { Remits } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
-import { useMemo } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   data: Remits[] | undefined;
-  loading?: boolean;
 }
 
-export default function RemitsTab({ data = [], loading }: Props) {
-  const rows = useMemo(
-    () =>
-      data.map((r) => ({
-        id: r.id,
-        remitDate: safeDate(r.remitDate),
-        txnTransfer: safeStr(r.txnTransfer),
-        currency: safeStr(r.recieveCurrency),
-        refNo: safeStr(r.referrenceNumber),
-        status: safeStr(r.remitStatus),
-      })),
-    [data]
-  );
+export default function RemitsTab({ data = [] }: Props) {
+  if (!data?.length) {
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Remittances</CardTitle>
+          <CardDescription>No remittances found.</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
-  const cols = useMemo(
-    () => [
-      { field: "remitDate", headerName: "Date", filter: true },
-      { field: "txnTransfer", headerName: "Transfer Tx", filter: true, flex: 1 },
-      { field: "currency", headerName: "CCY", width: 90 },
-      { field: "refNo", headerName: "Reference #", filter: true },
-      { field: "status", headerName: "Status", filter: true },
-    ],
-    []
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
+      {data.map((r) => (
+        <Card key={r.id}>
+          <CardHeader>
+            <CardTitle className="text-sm">{safeDate(r.remitDate)}</CardTitle>
+            <CardDescription>Ref #{safeStr(r.referrenceNumber)}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm text-[#3C4056] space-y-1">
+            <div className="grid grid-cols-2 gap-2">
+              <div><span className="text-muted-foreground">Transfer Tx:</span> {safeStr(r.txnTransfer)}</div>
+              <div><span className="text-muted-foreground">Currency:</span> {safeStr(r.recieveCurrency)}</div>
+            </div>
+            <div><span className="text-muted-foreground">Status:</span> {safeStr(r.remitStatus)}</div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-
-  return <CustomDataTable className="mt-4" columnDefs={cols} rowData={rows} loading={loading} />;
 }
