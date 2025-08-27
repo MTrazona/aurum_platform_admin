@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -21,6 +22,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/auth-context";
+import { getRoleFromUser, Roles } from "@/lib/rbac";
 import { urls } from "@/routes";
 import {
   Activity,
@@ -41,6 +43,7 @@ import { Link, useLocation } from "react-router-dom";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
+  const role = getRoleFromUser(user);
   const { pathname } = useLocation();
   const [openGroup, setOpenGroup] = React.useState<string | null>(null);
   const navGroups = [
@@ -48,28 +51,28 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       label: "Core",
       icon: SquareTerminal,
       items: [
-        { title: "Dashboard", url: urls.dashboard, icon: SquareTerminal },
-        { title: "Users", url: urls.users, icon: User },
-        { title: "Transactions", url: urls.transactions, icon: Activity },
+        { title: "Dashboard", url: urls.dashboard, icon: SquareTerminal, roles: [Roles.Admin] },
+        { title: "Users", url: urls.users, icon: User, roles: [Roles.Admin, Roles.Support] },
+        { title: "Transactions", url: urls.transactions, icon: Activity, roles: [Roles.Admin] },
       ],
     },
     {
       label: "Request Management",
       icon: BookOpen,
       items: [
-        { title: "Bank Request", url: urls.bankReq, icon: CreditCard },
-        { title: "Buy Request", url: urls.buyReq, icon: ShoppingCart },
-        { title: "GCA Request", url: urls.gcaReq, icon: FileSearch },
-        { title: "GAE Request", url: urls.gaeReq, icon: FileSignature },
+        { title: "Bank Request", url: urls.bankReq, icon: CreditCard, roles: [Roles.Admin, Roles.Support] },
+        { title: "Buy Request", url: urls.buyReq, icon: ShoppingCart, roles: [Roles.Admin] },
+        { title: "GCA Request", url: urls.gcaReq, icon: FileSearch, roles: [Roles.Admin] },
+        { title: "GAE Request", url: urls.gaeReq, icon: FileSignature, roles: [Roles.Admin] },
       ],
     },
     {
       label: "Other",
       icon: Building,
       items: [
-        { title: "USDAU Request", url: urls.usdauReq, icon: Building2 },
-        { title: "Rankup Request", url: urls.rankReq, icon: ArrowUpCircle },
-        { title: "Donate To Save", url: urls.donatetoSave, icon: ArrowUpCircle },
+        { title: "USDAU Request", url: urls.usdauReq, icon: Building2, roles: [Roles.Admin] },
+        { title: "Rankup Request", url: urls.rankReq, icon: ArrowUpCircle, roles: [Roles.Admin] },
+        { title: "Donate To Save", url: urls.donatetoSave, icon: ArrowUpCircle, roles: [Roles.Admin] },
       ],
     },
   ];
@@ -116,7 +119,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-3">
                     <SidebarMenuSub className="border-0">
-                      {item.items?.map((subItem) => {
+                      {item.items
+                        ?.filter((subItem: any) => {
+                          const allowed = (subItem.roles ?? [Roles.Admin]) as any[];
+                          if (role === Roles.Admin) return true;
+                          return allowed.includes(role);
+                        })
+                        .map((subItem) => {
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton

@@ -4,9 +4,12 @@
 import CustomDataTable from "@/components/custom-data-table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { TransactionsType } from "@/types/buy-request.types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { transactionColumnDefs } from "./column-def";
+import useUsersHooks from "@/hooks/use-users";
+import UserSearchCommand from "@/components/features/user-search-command";
 
 interface TransactionsDataTableProps {
   transactions: TransactionsType[];
@@ -20,27 +23,68 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
   onViewClick
 }) => {
   const [searchText, setSearchText] = useState<string>("");
-  const gridParamsRef = useRef<any>(null);
+  const [selectedUser, setSelectedUser] = useState<string>("all");
+  const { data: users = [] } = useUsersHooks();
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (gridParamsRef.current) {
-        gridParamsRef.current!.api.setGridOption("quickFilterText", searchText);
-      }
-    }, 300);
+  const userOptions = useMemo(() => {
+    return users.map((u) => ({
+      value: u.email,
+      label: `${u.firstName} ${u.lastName} (${u.email})`,
+    }));
+  }, [users]);
 
-    return () => clearTimeout(timeout);
-  }, [searchText]);
+  const filteredTransactions = useMemo(() => {
+    let result = transactions;
+    console.log(selectedUser)
+    if (selectedUser !== "all") {
+      result = result.filter((t: any) => t?.customer?.email === selectedUser);
+    }
+    const q = searchText.trim().toLowerCase();
+    console.log('q',transactions)
+    if (q) {
+      console.log('filteringgs',result)
+      result = transactions.filter((t) => {
+        console.log(t)
+        const combined = `${t.transactionCode} ${t.transactionType} ${t.customer?.firstname} ${t.transactionStatus} ${t.fromValue} ${t.toValue} ${(t as any)?.customer?.lastname ?? ""}`.toLowerCase();
+        return combined.includes(q);
+      });
+    }
+    return result;
+  }, [transactions, selectedUser, searchText]);
 
-
-  const handleGridReady = (params: any) => {
-    gridParamsRef.current = params;
+  const handleUserChange = (value: string) => {
+    setSelectedUser(value);
+    setSearchText(value)
   };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
-    
+        <div className="flex items-center gap-2 ml-auto">
+          <UserSearchCommand
+            users={users}
+            buttonText="Search Users for Filter (⌘K)"
+            onSelect={(u) => handleUserChange(u.email)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="user-filter" className="text-white">
+            Filter by User:
+          </Label>
+          <Select value={selectedUser} onValueChange={handleUserChange}>
+            <SelectTrigger className="w-[320px] bg-white cursor-pointer" id="user-filter">
+              <SelectValue placeholder="Select user" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              {userOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex items-center gap-2">
           <Label htmlFor="quick-search" className="text-white">
@@ -58,9 +102,8 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
 
       <CustomDataTable
         columnDefs={transactionColumnDefs(onViewClick)}
-        rowData={transactions}
+        rowData={filteredTransactions}
         loading={isLoading}
-        onGridReady={handleGridReady}
       />
     </div>
   );
