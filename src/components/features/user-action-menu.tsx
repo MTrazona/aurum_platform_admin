@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/types/customer.types";
 import { MoreVertical } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
+import { getRoleFromUser, Roles } from "@/lib/rbac";
 import { useNavigate } from "react-router-dom";
 
 type UserActionMenuProps = {
@@ -22,6 +24,8 @@ export default function UserActionMenu({
   handleLockedUnlock,
 }: UserActionMenuProps) {
   const navigate = useNavigate()
+  const { user } = useAuth();
+  const role = getRoleFromUser(user);
   const userId = userData?.userHash;
   const { blocked, login_attempt } = userData;
   const isLocked = login_attempt?.loginStatus === "Locked";
@@ -73,15 +77,17 @@ export default function UserActionMenu({
         >
           <div className="flex items-center gap-2">{blockBtnText}</div>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={(e) => {
-            e.preventDefault();
-            if (userId) navigate(`/users/${userData.id}`);
-          }}
-        >
-          <div className="flex items-center gap-2">View</div>
-        </DropdownMenuItem>
+        {role === Roles.Admin && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              if (userId) navigate(`/users/${userData.id}`);
+            }}
+          >
+            <div className="flex items-center gap-2">View</div>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
