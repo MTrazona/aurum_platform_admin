@@ -35,13 +35,17 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
 
   const filteredTransactions = useMemo(() => {
     let result = transactions;
+    console.log(selectedUser)
     if (selectedUser !== "all") {
       result = result.filter((t: any) => t?.customer?.email === selectedUser);
     }
     const q = searchText.trim().toLowerCase();
+    console.log('q',transactions)
     if (q) {
-      result = result.filter((t) => {
-        const combined = `${t.transactionCode} ${t.transactionType} ${t.transactionStatus} ${t.fromValue} ${t.toValue} ${(t as any)?.customer?.email ?? ""}`.toLowerCase();
+      console.log('filteringgs',result)
+      result = transactions.filter((t) => {
+        console.log(t)
+        const combined = `${t.transactionCode} ${t.transactionType} ${t.customer?.firstname} ${t.transactionStatus} ${t.fromValue} ${t.toValue} ${(t as any)?.customer?.lastname ?? ""}`.toLowerCase();
         return combined.includes(q);
       });
     }
@@ -50,6 +54,7 @@ const TransactionsDataTable: React.FC<TransactionsDataTableProps> = ({
 
   const handleUserChange = (value: string) => {
     setSelectedUser(value);
+    setSearchText(value)
   };
 
   return (
