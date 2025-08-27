@@ -3,6 +3,7 @@ import StatusChip from "@/components/status-chip";
 import type { GroupMonthlyTransaction } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: GroupMonthlyTransaction[] | undefined;
@@ -21,8 +22,9 @@ export default function GroupMonthlyTxTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((g) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(g) => (
         <Card key={g.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeDate(g.paymentDate)}</CardTitle>
@@ -38,7 +40,7 @@ export default function GroupMonthlyTxTab({ data = [] }: Props) {
             <div><span className="text-muted-foreground">Notes:</span> {safeStr(g.bookingNotes)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

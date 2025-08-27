@@ -1,6 +1,7 @@
 import type { CustomerRank } from "@/types/personalinfo";
 import { safeStr, safeDate } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: CustomerRank[] | undefined;
@@ -19,8 +20,9 @@ export default function ReferralsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((r) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(r) => (
         <Card key={r.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeStr(r.rankStatus) || "Referral"}</CardTitle>
@@ -33,7 +35,7 @@ export default function ReferralsTab({ data = [] }: Props) {
             <div className="line-clamp-2"><span className="text-muted-foreground">Description:</span> {safeStr(r.description)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

@@ -1,6 +1,7 @@
 import type { TransferUsdau } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: TransferUsdau[] | undefined;
@@ -19,8 +20,9 @@ export default function TransferUsdauTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((t) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(t) => (
         <Card key={t.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeDate(t.transferDate)}</CardTitle>
@@ -30,7 +32,7 @@ export default function TransferUsdauTab({ data = [] }: Props) {
             <div><span className="text-muted-foreground">Txn ID:</span> {safeStr(t.tnxID)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

@@ -1,6 +1,7 @@
 import type { Group } from "@/types/personalinfo";
 import { safeStr, safeDate } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: Group[] | undefined;
@@ -19,8 +20,9 @@ export default function GroupSharedSavingsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((g) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(g) => (
         <Card key={g.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeStr(g.groupName)}</CardTitle>
@@ -34,7 +36,7 @@ export default function GroupSharedSavingsTab({ data = [] }: Props) {
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

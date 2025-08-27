@@ -1,6 +1,7 @@
 import type { Remits } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: Remits[] | undefined;
@@ -19,8 +20,9 @@ export default function RemitsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((r) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(r) => (
         <Card key={r.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeDate(r.remitDate)}</CardTitle>
@@ -34,7 +36,7 @@ export default function RemitsTab({ data = [] }: Props) {
             <div><span className="text-muted-foreground">Status:</span> {safeStr(r.remitStatus)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

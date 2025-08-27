@@ -1,6 +1,7 @@
 import type { ReferralReward } from "@/types/personalinfo";
 import { safeDate, safeStr, safeNum } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: ReferralReward[] | undefined;
@@ -19,8 +20,9 @@ export default function ReferralRewardsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((r) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(r) => (
         <Card key={r.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeStr(r.transactionType)} • {safeStr(r.ranking)}</CardTitle>
@@ -33,7 +35,7 @@ export default function ReferralRewardsTab({ data = [] }: Props) {
             <div><span className="text-muted-foreground">From User ID:</span> {safeNum(r.fromUserId)}</div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }

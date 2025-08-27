@@ -3,6 +3,7 @@ import StatusChip from "@/components/status-chip";
 import type { UsdauRequest } from "@/types/personalinfo";
 import { safeDate, safeStr } from "@/utils/format-helper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import PaginatedCardGrid from "@/components/paginated-card-grid";
 
 interface Props {
   data: UsdauRequest[] | undefined;
@@ -21,8 +22,9 @@ export default function UsdauRequestsTab({ data = [] }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-4">
-      {data.map((u) => (
+    <PaginatedCardGrid
+      items={data}
+      renderItem={(u) => (
         <Card key={u.id}>
           <CardHeader>
             <CardTitle className="text-sm">{safeDate(u.dateRequest)}</CardTitle>
@@ -38,7 +40,7 @@ export default function UsdauRequestsTab({ data = [] }: Props) {
             <div className="flex items-center gap-2"><span className="text-muted-foreground">Status:</span> <StatusChip status={safeStr(u.requestStatus)} /></div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      )}
+    />
   );
 }
