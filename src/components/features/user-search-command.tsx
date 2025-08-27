@@ -8,9 +8,11 @@ import { urls } from "@/routes"
 
 interface UserSearchCommandProps {
   users: User[]
+  onSelect?: (user: User) => void
+  buttonText?: string
 }
 
-export default function UserSearchCommand({ users }: UserSearchCommandProps) {
+export default function UserSearchCommand({ users, onSelect, buttonText }: UserSearchCommandProps) {
   const [open, setOpen] = React.useState(false)
   const navigate = useNavigate()
 
@@ -25,15 +27,10 @@ export default function UserSearchCommand({ users }: UserSearchCommandProps) {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
-  const handleSelect = (userId: string) => {
-    setOpen(false)
-    navigate(urls.personalInfo.replace(":id", userId))
-  }
-
   return (
     <>
       <Button variant="outline" onClick={() => setOpen(true)} className="ml-auto">
-        Search Users (⌘K)
+        {buttonText ?? "Search Users (⌘K)"}
       </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
@@ -45,7 +42,14 @@ export default function UserSearchCommand({ users }: UserSearchCommandProps) {
               <CommandItem
                 key={u.id}
                 value={`${u.firstName} ${u.lastName} ${u.username} ${u.email} ${u.id}`}
-                onSelect={() => handleSelect(u.id)}
+                onSelect={() => {
+                  setOpen(false)
+                  if (onSelect) {
+                    onSelect(u)
+                  } else {
+                    navigate(urls.personalInfo.replace(":id", u.id))
+                  }
+                }}
               >
                 <span className="font-medium">{u.firstName} {u.lastName}</span>
                 <span className="text-muted-foreground ml-2">@{u.username}</span>
