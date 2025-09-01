@@ -11,8 +11,10 @@ import {
   RankUpRequestsPage,
   SigninPage,
   TransactionsPage,
+  TransactionDetailsRoute,
   USDAURequestsPage,
   UsersPage,
+  DonateToSavePage,
 } from "@/pages";
 
 export const urls = {
@@ -20,6 +22,7 @@ export const urls = {
   dashboard: "/dashboard",
   users: "/users",
   transactions: "/transactions",
+  transactionDetails: "/transactions/:id",
   bankReq: "/bank-requests",
   buyReq: "/buy-requests",
   gcaReq: "/gca-requests",
@@ -29,6 +32,7 @@ export const urls = {
   personalInfo: "/users/:id",
   donatetoSave: "/donate-to-save",
 };
+
 export const routeList = {
   public: {
     layout: <PublicLayout />,
@@ -40,6 +44,7 @@ export const routeList = {
       { path: urls.dashboard, element: withGuard(<DashboardPage />) },
       { path: urls.users, element: withGuard(<UsersPage />, [Roles.Admin, Roles.Support]) },
       { path: urls.transactions, element: withGuard(<TransactionsPage />) },
+      { path: urls.transactionDetails, element: withGuard(<TransactionDetailsRoute />) },
       { path: urls.bankReq, element: withGuard(<BankRequestsPage />, [Roles.Admin, Roles.Support]) },
       { path: urls.buyReq, element: withGuard(<BuyRequestsPage />) },
       { path: urls.gcaReq, element: withGuard(<GCARequestsPage />) },
@@ -47,7 +52,7 @@ export const routeList = {
       { path: urls.rankReq, element: withGuard(<RankUpRequestsPage />) },
       { path: urls.usdauReq, element: withGuard(<USDAURequestsPage />) },
       { path: urls.personalInfo, element: withGuard(<PersonalInfoPage />) },
-      { path: urls.donatetoSave, element: withGuard(<PersonalInfoPage />) },
+      { path: urls.donatetoSave, element: withGuard(<DonateToSavePage />) },
     ],
   },
 };

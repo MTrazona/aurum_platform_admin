@@ -2,7 +2,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
-export default function Breadcrumb() {
+type BreadcrumbProps = {
+  textColor?: string;
+  rootColor?: string;
+  linkColor?: string;
+  currentColor?: string;
+  separatorColor?: string;
+};
+
+export default function Breadcrumb({
+  textColor = "text-gray-300",
+  rootColor = "text-white",
+  linkColor = "text-gray-200",
+  currentColor = "text-gray-100",
+  separatorColor = "text-gray-400",
+}: BreadcrumbProps) {
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
 
@@ -10,8 +24,8 @@ export default function Breadcrumb() {
     str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, " ");
 
   return (
-    <nav className="text-sm text-gray-300 flex items-center space-x-1">
-      <Link to="/" className="hover:underline text-white font-medium">
+    <nav className={`text-sm flex items-center space-x-1 ${textColor}`}>
+      <Link to="/" className={`hover:underline font-medium ${rootColor}`}>
         Dashboard
       </Link>
 
@@ -21,13 +35,13 @@ export default function Breadcrumb() {
 
         return (
           <span key={fullPath} className="flex items-center space-x-1">
-            <ChevronRight className="w-4 h-4 text-gray-400" />
+            <ChevronRight className={`w-4 h-4 ${separatorColor}`} />
             {isLast ? (
-              <span className="text-gray-100 font-semibold">
+              <span className={`font-semibold ${currentColor}`}>
                 {capitalized(segment)}
               </span>
             ) : (
-              <Link to={fullPath} className="hover:underline text-gray-200">
+              <Link to={fullPath} className={`hover:underline ${linkColor}`}>
                 {capitalized(segment)}
               </Link>
             )}

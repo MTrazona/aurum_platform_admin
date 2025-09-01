@@ -3,6 +3,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-primary: #dca955;
+  --color-dark: #1E1E20;
+
+/* Optional single-token aliases (gives you bg-brand, text-brand) */
+--color-brand: var(--color-royal-600);
+--color-surface: var(--color-ink-900);
+--color-on-surface: #ffffff;
+}
+
+@layer utilities {
+  .dark-bg {
+    @apply bg-[#1E1E20];
+  }
+  .golden-bg {
+    @apply bg-[#f89004];
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

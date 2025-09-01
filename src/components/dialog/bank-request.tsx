@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BankAccountVerification } from "@/types/bank-request.types";
 import { Download } from "lucide-react";
 import { useState } from "react";
@@ -42,21 +43,21 @@ const BankRequestDetailsModal: React.FC<Props> = ({
   const renderAttachment = (label: string, url: string | null) => (
     <div className="space-y-2 w-full">
       <div className="flex justify-between items-center">
-        <p className="text-sm font-medium">{label}</p>
+        <p className="text-sm font-medium text-white">{label}</p>
         {url && (
           <a
             href={url}
             download
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-600 flex items-center gap-1 hover:underline"
+            className="text-sm text-blue-400 flex items-center gap-1 hover:underline"
           >
             <Download className="w-4 h-4" /> Download
           </a>
         )}
       </div>
       {url ? (
-        <div className="relative border rounded h-[300px] bg-black overflow-hidden">
+        <div className="relative border border-[#3A3A3A] rounded h-[400px] bg-black overflow-hidden">
           <TransformWrapper>
             <ZoomControls />
             <TransformComponent>
@@ -69,7 +70,7 @@ const BankRequestDetailsModal: React.FC<Props> = ({
           </TransformWrapper>
         </div>
       ) : (
-        <div className="text-gray-400 italic border rounded p-4 h-[300px] flex items-center justify-center">
+        <div className="text-gray-400 italic border border-[#3A3A3A] rounded p-4 h-[400px] flex items-center justify-center">
           No {label.toLowerCase()}
         </div>
       )}
@@ -85,97 +86,155 @@ const BankRequestDetailsModal: React.FC<Props> = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-7xl p-6 space-y-2">
-          <DialogHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <DialogTitle className="text-xl font-bold">
-                  Bank Request Review
-                </DialogTitle>
-                <p className="text-sm text-gray-500 mt-1">
-                  Please verify that the bank information below matches the
-                  submitted documents.
-                </p>
-              </div>
-              <StatusChip status={data.statusOfVerification} />
-            </div>
-          </DialogHeader>
-
-          {/* Bank Info */}
-          <div>
-            <h3 className="text-base font-semibold mb-2 text-gray-700">
-              Bank Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-3 text-sm text-gray-800">
-              <div>
-                <strong>Holder Name:</strong> {data.accountHolderName}
-              </div>
-              <div>
-                <strong>Account Number:</strong> {data.accountNumber}
-              </div>
-              <div>
-                <strong>Bank Name:</strong> {data.bankName}
-              </div>
-              <div>
-                <strong>Country:</strong> {data.accountCountry}
-              </div>
-              <div>
-                <strong>Currency:</strong> {data.currency}
-              </div>
-              <div>
-                <strong>KYC Verified:</strong> {data.kycVerified}
-              </div>
-              <div>
-                <strong>Status:</strong> {data.statusOfVerification}
-              </div>
-              <div>
-                <strong>Entry Date:</strong>{" "}
-                {new Date(data.dateEntry).toLocaleDateString()}
-              </div>
-              {data.rejectedReason && (
-                <div className="col-span-2">
-                  <strong>Rejection Reason:</strong> {data.rejectedReason}
+        <DialogContent className="max-w-[65vw] min-w-[65vw] rounded-lg !bg-[#171717] text-white flex flex-col overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-8 max-h-[75vh] overflow-y-auto p-8">
+            <div className="flex-1 space-y-4">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">
+                    Bank Request Review
+                  </h2>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Please verify that the bank information below matches the
+                    submitted documents.
+                  </p>
                 </div>
-              )}
+                <StatusChip status={data.statusOfVerification} />
+              </div>
+
+              {/* Attachments with Tabs */}
+              <div>
+                <h3 className="text-base font-semibold mb-2 text-white">
+                  Submitted Attachments
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Carefully inspect the documents to verify name, bank name, and
+                  account number.
+                </p>
+                
+                <Tabs defaultValue="attachment1" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-[#1E1E1E] border border-[#3A3A3A]">
+                    <TabsTrigger 
+                      value="attachment1" 
+                      className="data-[state=active]:bg-[#3A3A3A] data-[state=active]:text-white text-gray-300"
+                    >
+                      Attachment One
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="attachment2" 
+                      className="data-[state=active]:bg-[#3A3A3A] data-[state=active]:text-white text-gray-300"
+                    >
+                      Attachment Two
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="attachment1" className="mt-4">
+                    {renderAttachment("Attachment One", data.attachmentOne)}
+                  </TabsContent>
+                  
+                  <TabsContent value="attachment2" className="mt-4">
+                    {renderAttachment("Attachment Two", data.attachmentTwo)}
+                  </TabsContent>
+                </Tabs>
+              </div>
             </div>
-          </div>
+            
+            <div className="flex-[0.5] mt-[34px]">
+              <div className="space-y-6 bg-[#1E1E1E] p-6 rounded-xl border border-[#3A3A3A]">
+                {/* Section Title */}
+                <h2 className="text-lg font-bold text-golden">Bank Details</h2>
 
-          {/* Attachments */}
-          <div>
-            <h3 className="text-base font-semibold mb-2 text-gray-700">
-              Submitted Attachments
-            </h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Carefully inspect the documents to verify name, bank name, and
-              account number.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {renderAttachment("Attachment One", data.attachmentOne)}
-              {renderAttachment("Attachment Two", data.attachmentTwo)}
+                <div className="grid grid-cols-1 gap-y-4 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Holder Name:</span>
+                    <span className="font-medium text-white">{data.accountHolderName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Account Number:</span>
+                    <span className="font-medium text-white">{data.accountNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Bank Name:</span>
+                    <span className="font-medium text-white">{data.bankName}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Country:</span>
+                    <span className="font-medium text-white">{data.accountCountry}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Currency:</span>
+                    <span className="font-medium text-white">{data.currency}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">KYC Verified:</span>
+                    <span className="font-medium text-white">{data.kycVerified}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Status:</span>
+                    <span className="font-medium text-white">{data.statusOfVerification}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Entry Date:</span>
+                    <span className="font-medium text-white">
+                      {new Date(data.dateEntry).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-[#3A3A3A] my-2"></div>
+
+                {data.rejectedReason && (
+                  <div>
+                    <h3 className="text-lg font-bold text-golden mb-2">Rejection Details</h3>
+                    <div className="pt-2">
+                      <span className="text-red-400 text-sm font-medium">
+                        Rejection Reason: {data.rejectedReason}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons with Validation */}
+              <div className="flex gap-2 pt-4">
+                {data.statusOfVerification !== "Approved" && data.statusOfVerification !== "Rejected" && (
+                  <>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowRejectDialog(true)}
+                      disabled={isRejecting}
+                      className="flex-1"
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      onClick={() => setConfirming("approve")}
+                      disabled={isApproving}
+                      className="flex-1 bg-golden"
+                    >
+                      Approve
+                    </Button>
+                  </>
+                )}
+                
+                {data.statusOfVerification === "Approved" && (
+                  <div className="w-full text-center py-3 bg-green-900/20 border border-green-500/30 rounded-lg">
+                    <span className="text-green-400 text-sm font-medium">
+                      ✓ This request has been approved
+                    </span>
+                  </div>
+                )}
+                
+                {data.statusOfVerification === "Rejected" && (
+                  <div className="w-full text-center py-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+                    <span className="text-red-400 text-sm font-medium">
+                      ✗ This request has been rejected
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => setShowRejectDialog(true)}
-              disabled={isRejecting}
-              className="cursor-pointer"
-            >
-              Reject
-            </Button>
-
-            <Button
-              onClick={() => setConfirming("approve")}
-              disabled={isApproving}
-              className="cursor-pointer"
-            >
-              Approve
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
