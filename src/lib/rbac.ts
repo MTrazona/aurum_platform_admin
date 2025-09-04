@@ -11,12 +11,12 @@ export const Roles = {
 export function getRoleFromUser(user: Admin | null): AppRole {
   const raw = user?.userType?.userType ?? "";
   const normalized = String(raw).trim().toLowerCase();
-
+  console.log(normalized); 
   if (normalized.includes("admin")) return Roles.Admin;
   if (normalized.includes("support")) return Roles.Support;
 
   // Fallbacks for common variants
-  if (["cs", "customer_support", "customer-support"].includes(normalized)) return Roles.Support;
+  if (["cs", "customer_support", "customer-support","support"].includes(normalized)) return Roles.Support;
   if (["superadmin", "super_admin", "super-admin"].includes(normalized)) return Roles.Admin;
 
   return Roles.Unknown;
@@ -30,7 +30,7 @@ export function canAccess(role: AppRole, allowedRoles?: AppRole[]): boolean {
 }
 
 export function getDefaultHomeForRole(role: AppRole): string {
-  if (role === Roles.Support) return "/users"; // Customer support landing
+  if (role === Roles.Support) return "/dashboard"; // Customer support landing - dashboard
   return "/dashboard"; // Admin landing
 }
 

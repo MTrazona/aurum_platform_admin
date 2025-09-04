@@ -1,17 +1,23 @@
 export interface Charity {
   id: number;
-  name: string;
-  description: string;
-  website?: string;
-  email?: string;
-  phone?: string;
-  address: string;
+  // User/Contact Information
+  username: string;
+  email: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   country: string;
-  category: CharityCategory;
+  phoneNumber: string;
+  
+  // Charity Information
+  charityName: string;
+  description: string;
+  imageUrl: string;
+  location: string;
+  charityType: string;
+  
+  // System fields
   status: CharityStatus;
-  imageUrl?: string;
-  donationGoal?: number;
-  currentDonations?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,16 +40,21 @@ export type CharityStatus =
   | "Suspended";
 
 export interface CreateCharityRequest {
-  name: string;
-  description: string;
-  website?: string;
-  email?: string;
-  phone?: string;
-  address: string;
+  // User/Contact Information
+  username: string;
+  email: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   country: string;
-  category: CharityCategory;
-  imageUrl?: string;
-  donationGoal?: number;
+  phoneNumber: string;
+  
+  // Charity Information
+  charityName: string;
+  description: string;
+  imageUrl: string;
+  location: string;
+  charityType: string;
 }
 
 export interface UpdateCharityRequest extends Partial<CreateCharityRequest> {
@@ -52,7 +63,5 @@ export interface UpdateCharityRequest extends Partial<CreateCharityRequest> {
 
 export interface CharityFilters {
   search?: string;
-  category?: CharityCategory;
-  status?: CharityStatus;
   country?: string;
 }

@@ -8,7 +8,7 @@ import {
   Ban, 
   CheckCircle 
 } from "lucide-react";
-import CharitiesDataTable from "./table";
+import CharitiesCardGrid from "./table";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -85,8 +85,8 @@ export default function DonateToSavePage() {
         </div>
       )}
 
-      {/* Charities Data Table */}
-      <CharitiesDataTable
+      {/* Charities Card Grid */}
+      <CharitiesCardGrid
         charities={charities}
         isLoading={isLoading}
       />

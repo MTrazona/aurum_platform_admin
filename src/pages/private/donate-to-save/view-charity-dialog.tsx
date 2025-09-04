@@ -4,13 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Building2, 
-  Globe, 
   Mail, 
-  Phone, 
   MapPin, 
-  Calendar,
-  DollarSign,
-  Heart
+  Calendar
 } from "lucide-react";
 
 interface ViewCharityDialogProps {
@@ -37,28 +33,6 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
     }
   };
 
-  const getCategoryBadgeVariant = (category: string) => {
-    switch (category) {
-      case "Education":
-        return "default";
-      case "Healthcare":
-        return "destructive";
-      case "Environment":
-        return "outline";
-      case "Poverty Relief":
-        return "secondary";
-      case "Animal Welfare":
-        return "default";
-      case "Disaster Relief":
-        return "destructive";
-      case "Arts & Culture":
-        return "outline";
-      case "Human Rights":
-        return "secondary";
-      default:
-        return "secondary";
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -68,12 +42,6 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -81,7 +49,7 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="w-5 h-5" />
-            Charity Details: {charity.name}
+            Charity Details: {charity.charityName}
           </DialogTitle>
         </DialogHeader>
 
@@ -93,7 +61,7 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
                 {charity.imageUrl ? (
                   <img
                     src={charity.imageUrl}
-                    alt={charity.name}
+                    alt={charity.charityName}
                     className="w-32 h-32 rounded-lg object-cover"
                   />
                 ) : (
@@ -104,13 +72,13 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
                 
                 <div className="flex-1 space-y-4">
                   <div>
-                    <h2 className="text-2xl font-bold">{charity.name}</h2>
+                    <h2 className="text-2xl font-bold">{charity.charityName}</h2>
                     <p className="text-gray-600 mt-1">{charity.description}</p>
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant={getCategoryBadgeVariant(charity.category)}>
-                      {charity.category}
+                    <Badge variant="outline">
+                      {charity.charityType}
                     </Badge>
                     <Badge variant={getStatusBadgeVariant(charity.status)}>
                       {charity.status}
@@ -132,62 +100,47 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
             </CardContent>
           </Card>
 
-          {/* Contact Information */}
+          {/* Contact Person Information */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                Contact Information
+                Contact Person Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {charity.email && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-green-600" />
-                    <div>
-                      <p className="font-medium">Email</p>
-                      <a 
-                        href={`mailto:${charity.email}`}
-                        className="text-blue-600 hover:underline"
-                      >
-                        {charity.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <p className="font-medium">Full Name</p>
+                  <p className="text-gray-600">
+                    {charity.firstName} {charity.middleName} {charity.lastName}
+                  </p>
+                </div>
                 
-                {charity.phone && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">Phone</p>
-                      <a 
-                        href={`tel:${charity.phone}`}
-                        className="text-blue-600 hover:underline"
-                      >
-                        {charity.phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <p className="font-medium">Username</p>
+                  <p className="text-gray-600">@{charity.username}</p>
+                </div>
                 
-                {charity.website && (
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-purple-600" />
-                    <div>
-                      <p className="font-medium">Website</p>
-                      <a 
-                        href={charity.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {charity.website}
-                      </a>
-                    </div>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <p className="font-medium">Email</p>
+                  <a 
+                    href={`mailto:${charity.email}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {charity.email}
+                  </a>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="font-medium">Phone</p>
+                  <a 
+                    href={`tel:${charity.phoneNumber}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {charity.phoneNumber}
+                  </a>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -206,68 +159,10 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
                   <MapPin className="w-4 h-4 text-gray-400" />
                   <span className="font-medium">{charity.country}</span>
                 </div>
-                <p className="text-gray-600 ml-6">{charity.address}</p>
+                <p className="text-gray-600 ml-6">{charity.location}</p>
               </div>
             </CardContent>
           </Card>
-
-          {/* Financial Information */}
-          {(charity.donationGoal || charity.currentDonations) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Financial Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {charity.donationGoal && (
-                    <div className="flex items-center gap-3">
-                      <Heart className="w-5 h-5 text-red-600" />
-                      <div>
-                        <p className="font-medium">Donation Goal</p>
-                        <p className="text-lg font-bold text-green-600">
-                          {formatCurrency(charity.donationGoal)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {charity.currentDonations && (
-                    <div className="flex items-center gap-3">
-                      <DollarSign className="w-5 h-5 text-green-600" />
-                      <div>
-                        <p className="font-medium">Current Donations</p>
-                        <p className="text-lg font-bold text-blue-600">
-                          {formatCurrency(charity.currentDonations)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                {charity.donationGoal && charity.currentDonations && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Progress</span>
-                      <span>
-                        {Math.round((charity.currentDonations / charity.donationGoal) * 100)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${Math.min((charity.currentDonations / charity.donationGoal) * 100, 100)}%` 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
         </div>
       </DialogContent>
     </Dialog>

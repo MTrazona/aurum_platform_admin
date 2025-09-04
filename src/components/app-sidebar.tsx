@@ -52,7 +52,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       label: "Core",
       icon: SquareTerminal,
       items: [
-        { title: "Dashboard", url: urls.dashboard, icon: SquareTerminal, roles: [Roles.Admin] },
+        { title: "Dashboard", url: urls.dashboard, icon: SquareTerminal, roles: [Roles.Admin, Roles.Support] },
         { title: "Users", url: urls.users, icon: User, roles: [Roles.Admin, Roles.Support] },
         { title: "Transactions", url: urls.transactions, icon: Activity, roles: [Roles.Admin] },
       ],
@@ -107,6 +107,20 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     setOpenGroup((prev) => (prev === label ? null : label));
   };
 
+  // For support role, flatten all accessible items into main menu
+  const getSupportMenuItems = () => {
+    const supportItems: any[] = [];
+    navGroups.forEach(group => {
+      group.items.forEach(item => {
+        const allowed = (item.roles ?? [Roles.Admin]) as any[];
+        if (allowed.includes(role)) {
+          supportItems.push(item);
+        }
+      });
+    });
+    return supportItems;
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -116,70 +130,101 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {navGroups.map((item, index) => {
-              const isActive = isGroupActive(item);
-              const shouldBeOpen = openGroup === item.label || isActive;
-              
-              return (
-                <Collapsible
-                  key={index}
-                  asChild
-                  open={shouldBeOpen}
-                  className="group/collapsible"
-                >
-                  <SidebarMenuItem key={item.label}>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton
-                        onClick={() => handleToggleGroup(item.label)}
-                        className={`hover:bg-[#f89004] transition-colors ${
-                          isActive ? "bg-[#f89004]/20 text-[#f89004]" : ""
-                        }`}
+            {role === Roles.Support ? (
+              // For support role, show all accessible items as main menu items
+              getSupportMenuItems().map((item, index) => {
+                const isActive = isItemActive(item.url);
+                
+                return (
+                  <SidebarMenuItem key={index}>
+                    <SidebarMenuButton
+                      asChild
+                      className={`hover:bg-[#f89004] hover:!text-white transition-colors ${
+                        isActive ? "bg-[#f89004] text-white" : ""
+                      }`}
+                    >
+                      <Link
+                        to={item.url}
+                        className="flex items-center gap-2 text-inherit"
                       >
-                        {item.icon && <item.icon />}
-                        <span className="text-lg">{item.label}</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-3">
-                      <SidebarMenuSub className="border-0">
-                        {item.items
-                          ?.filter((subItem: any) => {
-                            const allowed = (subItem.roles ?? [Roles.Admin]) as any[];
-                            if (role === Roles.Admin) return true;
-                            return allowed.includes(role);
-                          })
-                          .map((subItem) => {
-                            const isSubItemActive = isItemActive(subItem.url);
-                            
-                            return (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton
-                                  asChild
-                                  className={`hover:bg-[#f89004] hover:!text-white transition-colors ${
-                                    isSubItemActive ? "bg-[#f89004] text-white" : ""
-                                  }`}
-                                >
-                                  <Link
-                                    to={subItem.url}
-                                    className="p-5 flex items-center gap-2 text-inherit"
-                                  >
-                                    {subItem.icon && (
-                                      <subItem.icon className={`w-4 h-4 ${
-                                        isSubItemActive ? "!text-white" : "!text-white"
-                                      }`} />
-                                    )}
-                                    <span>{subItem.title}</span>
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            );
-                          })}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
+                        {item.icon && (
+                          <item.icon className={`w-4 h-4 ${
+                            isActive ? "!text-white" : "!text-white"
+                          }`} />
+                        )}
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
-                </Collapsible>
-              );
-            })}
+                );
+              })
+            ) : (
+              // For admin role, show collapsible groups with submenus
+              navGroups.map((item, index) => {
+                const isActive = isGroupActive(item);
+                const shouldBeOpen = openGroup === item.label || isActive;
+                
+                return (
+                  <Collapsible
+                    key={index}
+                    asChild
+                    open={shouldBeOpen}
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem key={item.label}>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          onClick={() => handleToggleGroup(item.label)}
+                          className={`hover:bg-[#f89004] transition-colors ${
+                            isActive ? "bg-[#f89004]/20 text-[#f89004]" : ""
+                          }`}
+                        >
+                          {item.icon && <item.icon />}
+                          <span className="text-lg">{item.label}</span>
+                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-3">
+                        <SidebarMenuSub className="border-0">
+                          {item.items
+                            ?.filter((subItem: any) => {
+                              const allowed = (subItem.roles ?? [Roles.Admin]) as any[];
+                              if (role === Roles.Admin) return true;
+                              return allowed.includes(role);
+                            })
+                            .map((subItem) => {
+                              const isSubItemActive = isItemActive(subItem.url);
+                              
+                              return (
+                                <SidebarMenuSubItem key={subItem.title}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    className={`hover:bg-[#f89004] hover:!text-white transition-colors ${
+                                      isSubItemActive ? "bg-[#f89004] text-white" : ""
+                                    }`}
+                                  >
+                                    <Link
+                                      to={subItem.url}
+                                      className="p-5 flex items-center gap-2 text-inherit"
+                                    >
+                                      {subItem.icon && (
+                                        <subItem.icon className={`w-4 h-4 ${
+                                          isSubItemActive ? "!text-white" : "!text-white"
+                                        }`} />
+                                      )}
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              );
+                            })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                );
+              })
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

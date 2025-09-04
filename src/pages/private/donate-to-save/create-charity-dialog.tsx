@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCharities } from "@/hooks/use-charities";
-import type { CreateCharityRequest, CharityCategory } from "@/types/charity.types";
+import type { CreateCharityRequest } from "@/types/charity.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,15 +22,21 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<CreateCharityRequest>({
-    name: "",
-    description: "",
-    website: "",
+    // User/Contact Information
+    username: "",
     email: "",
-    phone: "",
-    address: "",
+    firstName: "",
+    middleName: "",
+    lastName: "",
     country: "",
-    category: "Other",
-    donationGoal: 0,
+    phoneNumber: "",
+    
+    // Charity Information
+    charityName: "",
+    description: "",
+    imageUrl: "",
+    location: "",
+    charityType: "",
   });
 
   const handleInputChange = (field: keyof CreateCharityRequest, value: string | number) => {
@@ -43,7 +49,10 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
       setImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        // Set the imageUrl in formData
+        setFormData(prev => ({ ...prev, imageUrl: result }));
       };
       reader.readAsDataURL(file);
     }
@@ -52,6 +61,7 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    setFormData(prev => ({ ...prev, imageUrl: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,24 +73,23 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
       // Create charity
       const newCharity = await createCharity(formData);
       
-      // Upload image if selected
-      if (imageFile && newCharity) {
-        // Note: You might want to handle image upload separately or include it in the create request
-        // For now, we'll just create the charity without the image
-        console.log("Image upload would happen here");
-      }
-      
       // Reset form and close dialog
       setFormData({
-        name: "",
-        description: "",
-        website: "",
+        // User/Contact Information
+        username: "",
         email: "",
-        phone: "",
-        address: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
         country: "",
-        category: "Other",
-        donationGoal: 0,
+        phoneNumber: "",
+        
+        // Charity Information
+        charityName: "",
+        description: "",
+        imageUrl: "",
+        location: "",
+        charityType: "",
       });
       setImageFile(null);
       setImagePreview(null);
@@ -93,17 +102,6 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
     }
   };
 
-  const categories: CharityCategory[] = [
-    "Education",
-    "Healthcare", 
-    "Environment",
-    "Poverty Relief",
-    "Animal Welfare",
-    "Disaster Relief",
-    "Arts & Culture",
-    "Human Rights",
-    "Other"
-  ];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -116,103 +114,70 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
+          {/* User/Contact Information */}
           <Card>
             <CardContent className="pt-6 space-y-4">
-              <h3 className="font-semibold text-lg">Basic Information</h3>
+              <h3 className="font-semibold text-lg">Contact Person Information</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Charity Name *</Label>
+                  <Label htmlFor="username">Username *</Label>
                   <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder="Enter charity name"
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => handleInputChange("username", e.target.value)}
+                    placeholder="Enter username"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => handleInputChange("category", value as CharityCategory)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
-                  placeholder="Describe the charity's mission and activities"
-                  rows={3}
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Contact Information */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h3 className="font-semibold text-lg">Contact Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder="charity@example.com"
+                    placeholder="Enter email address"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    placeholder="Enter first name"
+                    required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="middleName">Middle Name</Label>
                   <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="+1 (555) 123-4567"
+                    id="middleName"
+                    value={formData.middleName}
+                    onChange={(e) => handleInputChange("middleName", e.target.value)}
+                    placeholder="Enter middle name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    placeholder="Enter last name"
+                    required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  placeholder="https://www.charity.org"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Location */}
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h3 className="font-semibold text-lg">Location</h3>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="country">Country *</Label>
@@ -226,31 +191,73 @@ export default function CreateCharityDialog({ open, onClose }: CreateCharityDial
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="donationGoal">Donation Goal (USD)</Label>
+                  <Label htmlFor="phoneNumber">Phone Number *</Label>
                   <Input
-                    id="donationGoal"
-                    type="number"
-                    value={formData.donationGoal}
-                    onChange={(e) => handleInputChange("donationGoal", parseFloat(e.target.value) || 0)}
-                    placeholder="0"
-                    min="0"
+                    id="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+                    placeholder="Enter phone number"
+                    required
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
+          {/* Charity Information */}
+          <Card>
+            <CardContent className="pt-6 space-y-4">
+              <h3 className="font-semibold text-lg">Charity Information</h3>
+              
               <div className="space-y-2">
-                <Label htmlFor="address">Address *</Label>
-                <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Enter full address"
-                  rows={2}
+                <Label htmlFor="charityName">Charity Name *</Label>
+                <Input
+                  id="charityName"
+                  value={formData.charityName}
+                  onChange={(e) => handleInputChange("charityName", e.target.value)}
+                  placeholder="Enter charity name"
                   required
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  placeholder="Describe the charity's mission and activities"
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location *</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    placeholder="Enter location"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="charityType">Charity Type *</Label>
+                  <Input
+                    id="charityType"
+                    value={formData.charityType}
+                    onChange={(e) => handleInputChange("charityType", e.target.value)}
+                    placeholder="Enter charity type"
+                    required
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
+
 
           {/* Image Upload */}
           <Card>

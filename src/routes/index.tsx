@@ -42,7 +42,7 @@ export const routeList = {
   private: {
     layout: <PrivateLayout />,
     routes: [
-      { path: urls.dashboard, element: withGuard(<DashboardPage />) },
+      { path: urls.dashboard, element: withGuard(<DashboardPage />, [Roles.Admin, Roles.Support]) },
       { path: urls.users, element: withGuard(<UsersPage />, [Roles.Admin, Roles.Support]) },
       { path: urls.transactions, element: withGuard(<TransactionsPage />) },
       { path: urls.transactionDetails, element: withGuard(<TransactionDetailsRoute />) },

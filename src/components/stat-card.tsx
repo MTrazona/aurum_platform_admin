@@ -5,11 +5,11 @@ import type { LucideIcon } from "lucide-react";
 type StatCardProps = {
   title: string;
   value: number | string;
-  percentageChange: string;
+  percentageChange?: string;
   description: string;
-  bars: number[];
+  bars?: number[];
   icon?: LucideIcon;
-  color?: "blue" | "green" | "red" | "orange" | "yellow" | "purple";
+  color?: "blue" | "green" | "red" | "orange" | "yellow" | "purple" | "gray";
 };
 
 const colorMap = {  
@@ -19,14 +19,15 @@ const colorMap = {
   orange: "border-orange-500 text-orange-500 bg-orange-500",
   yellow: "border-yellow-500 text-yellow-500 bg-yellow-500",
   purple: "border-purple-500 text-purple-500 bg-purple-500",
+  gray: "border-gray-500 text-gray-500 bg-gray-500",
 };
 
 const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
-  percentageChange,
+  percentageChange = "+0%",
   description,
-  bars,
+  bars = [1, 2, 3, 4, 5],
   icon: Icon,
   color = "blue",
 }) => {
