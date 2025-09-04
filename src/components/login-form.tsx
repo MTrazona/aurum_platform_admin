@@ -6,12 +6,15 @@ import { cn } from "@/lib/utils";
 import { signinAuthentication } from "@/apis/auth";
 import { useNavigate } from "react-router-dom";
 import { saveToken } from "@/zustand/store/store.provider";
+import { useError } from "@/context/error-context";
+import { InlineError } from "@/components/error-ui";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
   const navigate = useNavigate();
+  const { showError } = useError();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,6 +44,7 @@ export function LoginForm({
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage("An error occurred while logging in.");
+      showError(error);
     } finally {
       setLoading(false);
     }
@@ -61,9 +65,10 @@ export function LoginForm({
       </div>
 
       {errorMessage && (
-        <div className="bg-red-500 text-white p-2 rounded mb-4">
-          {errorMessage}
-        </div>
+        <InlineError 
+          message={errorMessage} 
+          onDismiss={() => setErrorMessage(null)}
+        />
       )}
 
       <div className="grid gap-6">

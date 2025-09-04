@@ -28,7 +28,7 @@ export const gcaRequestColumnDefs = (
     filter: "agTextColumnFilter",
     filterParams: { buttons: ["reset", "apply"] },
     cellRenderer: ({ data }: ICellRendererParams<TransactionsType>) =>
-      data ? <p>{formatTransactionCode(data.transactionCode)}</p> : null,
+      data ? <p className="ag-cell-wrapper">{formatTransactionCode(data.transactionCode)}</p> : null,
   },
   {
     headerName: "Customer",

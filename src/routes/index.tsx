@@ -16,6 +16,7 @@ import {
   UsersPage,
   DonateToSavePage,
 } from "@/pages";
+import ErrorPage from "@/pages/error-page";
 
 export const urls = {
   login: "/",
@@ -53,6 +54,7 @@ export const routeList = {
       { path: urls.usdauReq, element: withGuard(<USDAURequestsPage />) },
       { path: urls.personalInfo, element: withGuard(<PersonalInfoPage />) },
       { path: urls.donatetoSave, element: withGuard(<DonateToSavePage />) },
+      { path: "*", element: <ErrorPage /> },
     ],
   },
 };
