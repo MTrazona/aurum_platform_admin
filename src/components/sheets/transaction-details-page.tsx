@@ -1,10 +1,40 @@
 import Breadcrumb from "@/components/routes-bread-crumb";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import type { TransactionsType } from "@/types/buy-request.types";
 import { PriceFormat, formatTransactionCode, safeDate, safeStr } from "@/utils/format-helper";
-import { ArrowLeft, CalendarDays, CheckCircle, ChevronDown, ChevronRight, Clock, Coins, CreditCard, DollarSign, FileCheck, FileImage, FileText, Hash, Info, Link, TrendingUp, XCircle } from "lucide-react";
+import { 
+  ArrowLeft, 
+  CalendarDays, 
+  ChevronDown, 
+  ChevronRight, 
+  Coins, 
+  CreditCard, 
+  DollarSign, 
+  FileCheck, 
+  FileText, 
+  Hash, 
+  Link, 
+  TrendingUp, 
+  XCircle,
+  User,
+  FileText as FileTextIcon,
+  CheckCircle,
+  Clock,
+  Info
+} from "lucide-react";
 import React, { useState } from "react";
 import { USDTDisplay } from "../features/price-display";
+import { DocumentPreviewModal } from "../transaction/document-preview-modal";
+import { DocumentsTab } from "../transaction/documents-tab";
+import { GAETerminationPartials } from "../transaction/gae-termination-partials";
+import { EnhancedField } from "../enhanced-field";
+import { NoDataDisplay } from "../no-data-display";
+import { getStatusIcon, getFileType, copyToClipboard } from "../../utils/transaction-utils";
+import { useGAETermination } from "../../hooks/use-gae-termination";
+import type { TabType, PreviewModalState, TabConfig } from "../../types/transaction.types";
 
 interface TransactionDetailsPageProps {
   transaction: TransactionsType;
@@ -12,28 +42,70 @@ interface TransactionDetailsPageProps {
   title: string;
 }
 
-type TabType = 'overview' | 'financial' | 'gae' | 'payment' | 'documents' | 'termination';
-
 const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
   transaction,
   onBack,
   title,
 }) => {
+  console.log("transaction", transaction);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']));
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [previewModal, setPreviewModal] = useState<PreviewModalState>({
+    isOpen: false,
+    url: '',
+    type: 'document',
+    title: ''
+  });
 
-  const getStatusIcon = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
-      case "failed":
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case "terminated":
-        return <XCircle className="h-4 w-4 text-red-500" />;
+  // GAE Termination hook - only fetch if transaction type is GAE
+  const { data: gaeTerminationData, loading: gaeTerminationLoading } = useGAETermination(
+    transaction.transactionType === 'GAE' ? transaction.id : null
+  );
+
+  // Helper function to copy to clipboard with field tracking
+  const handleCopyToClipboard = async (text: string, field: string) => {
+    const success = await copyToClipboard(text);
+    if (success) {
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
+
+  // Helper function to open preview modal
+  const openPreview = (url: string, title: string) => {
+    setPreviewModal({
+      isOpen: true,
+      url,
+      type: getFileType(url),
+      title
+    });
+  };
+
+  // Helper function to close preview modal
+  const closePreview = () => {
+    setPreviewModal({
+      isOpen: false,
+      url: '',
+      type: 'document',
+      title: ''
+    });
+  };
+
+  // Helper function to get status badge
+  const getStatusBadge = (status: string) => {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="w-3 h-3 mr-1" />Failed</Badge>;
+      case 'terminated':
+        return <Badge className="bg-red-100 text-red-800 border-red-200"><XCircle className="w-3 h-3 mr-1" />Terminated</Badge>;
       default:
-        return <Info className="h-4 w-4 text-blue-500" />;
+        return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
@@ -66,6 +138,7 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
       </div>
     );
   };
+
 
   const renderCollapsibleSection = (title: string, content: React.ReactNode, sectionKey: string, icon?: React.ReactNode) => {
     const isExpanded = expandedSections.has(sectionKey);
@@ -101,6 +174,11 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
       value: React.ReactNode;
       show?: boolean;
       isSmallLabel?: boolean;
+      icon?: React.ReactNode;
+      copyable?: boolean;
+      copyValue?: string;
+      copyField?: string;
+      highlight?: boolean;
     }>
   ) => {
     const visibleFields = fields.filter(field => field.show !== false);
@@ -110,23 +188,30 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {visibleFields.map((field, index) => (
-          <div key={index} className="bg-gray-800/30 p-3 rounded-lg border border-gray-700/50 hover:border-gray-600/50 transition-colors">
-            {renderField(field.label, field.value, field.show, field.isSmallLabel)}
-          </div>
+          <Card key={index} className="bg-[#1E1E1E] border-[#3A3A3A] hover:border-[#4A4A4A] transition-colors">
+            <CardContent className="p-4">
+              {field.icon || field.copyable ? (
+                <EnhancedField
+                  label={field.label}
+                  value={field.value}
+                  icon={field.icon}
+                  copyable={field.copyable}
+                  copyValue={field.copyValue}
+                  highlight={field.highlight}
+                  show={field.show}
+                  copied={copiedField === field.copyField}
+                  onCopy={() => field.copyValue && field.copyField && handleCopyToClipboard(field.copyValue, field.copyField)}
+                />
+              ) : (
+                renderField(field.label, field.value, field.show, field.isSmallLabel)
+              )}
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
   };
 
-  const NoDataDisplay = ({ message = "No information available" }: { message?: string }) => (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="w-16 h-16 bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
-        <Info className="h-8 w-8 text-gray-400" />
-      </div>
-      <p className="text-gray-400 text-lg font-medium">{message}</p>
-      <p className="text-gray-500 text-sm mt-1">This section doesn't have any data to display at the moment.</p>
-    </div>
-  );
 
   const hasOverviewData = () => {
     return !!(
@@ -183,12 +268,6 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
     );
   };
 
-  const hasDocumentsData = () => {
-    return !!(
-      transaction.certificates?.[0]?.paymentVoucherLink ||
-      transaction.certificates?.[0]?.goldCertificateLink
-    );
-  };
 
   const hasTerminationData = () => {
     return !!(
@@ -199,7 +278,7 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
     );
   };
 
-  const tabs: Array<{ key: TabType; label: string; icon: React.ReactNode }> = [
+  const tabs: TabConfig[] = [
     { key: 'overview', label: 'Overview', icon: <Hash className="h-4 w-4" /> },
     { key: 'financial', label: 'Financial', icon: <DollarSign className="h-4 w-4" /> },
     { key: 'gae', label: 'GAE Details', icon: <Coins className="h-4 w-4" /> },
@@ -221,32 +300,48 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
                 {
                   label: "Transaction Type",
                   value: safeStr(transaction.transactionType) || 'N/A',
-                  show: !!transaction.transactionType
+                  show: !!transaction.transactionType,
+                  icon: <Hash className="h-4 w-4" />,
+                  highlight: true
                 },
                 {
                   label: "Transaction Code",
                   value: formatTransactionCode(transaction.transactionCode),
-                  show: !!transaction.transactionCode
+                  show: !!transaction.transactionCode,
+                  icon: <FileTextIcon className="h-4 w-4" />,
+                  copyable: true,
+                  copyValue: transaction.transactionCode,
+                  copyField: 'transactionCode'
                 },
                 {
                   label: "Transaction Status",
                   value: transaction.transactionStatus,
-                  show: !!transaction.transactionStatus
+                  show: !!transaction.transactionStatus,
+                  icon: getStatusIcon(transaction.transactionStatus)
                 },
                 {
                   label: "Transaction ID",
                   value: formatTransactionCode(transaction.txnID ?? "") || 'N/A',
-                  show: !!transaction.txnID
+                  show: !!transaction.txnID,
+                  icon: <Hash className="h-4 w-4" />,
+                  copyable: true,
+                  copyValue: transaction.txnID || '',
+                  copyField: 'txnID'
                 },
                 {
                   label: "Tracking Number",
                   value: formatTransactionCode(transaction.trackingNumber ?? ''),
-                  show: !!transaction.trackingNumber
+                  show: !!transaction.trackingNumber,
+                  icon: <FileTextIcon className="h-4 w-4" />,
+                  copyable: true,
+                  copyValue: transaction.trackingNumber || '',
+                  copyField: 'trackingNumber'
                 },
                 {
                   label: "Customer Name",
                   value: transaction.customer ? `${transaction.customer.firstName} ${transaction.customer.lastName}` : 'N/A',
-                  show: !!transaction.customer
+                  show: !!transaction.customer,
+                  icon: <User className="h-4 w-4" />
                 }
               ]), "basic-info", <Hash className="h-4 w-4" />
             )}
@@ -309,22 +404,28 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
                 {
                   label: "From Amount",
                   value: PriceFormat(transaction.fromValue, transaction, false, 'fromValue'),
-                  show: !!transaction.fromValue
+                  show: !!transaction.fromValue,
+                  icon: <DollarSign className="h-4 w-4" />,
+                  highlight: true
                 },
                 {
                   label: "To Amount",
                   value: PriceFormat(transaction.toValue, transaction, false, 'toValue'),
-                  show: !!transaction.toValue
+                  show: !!transaction.toValue,
+                  icon: <TrendingUp className="h-4 w-4" />,
+                  highlight: true
                 },
                 {
                   label: "Transaction Fee",
                   value: PriceFormat(transaction.transactionFee),
-                  show: !!transaction.transactionFee
+                  show: !!transaction.transactionFee,
+                  icon: <CreditCard className="h-4 w-4" />
                 },
                 {
                   label: "Booking Note",
                   value: safeStr(transaction.bookingNote) || 'N/A',
-                  show: !!transaction.bookingNote
+                  show: !!transaction.bookingNote,
+                  icon: <FileTextIcon className="h-4 w-4" />
                 }
               ]), "financial-details", <DollarSign className="h-4 w-4" />
             )}
@@ -497,77 +598,52 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
         );
 
       case 'documents':
-        if (!hasDocumentsData()) {
-          return <NoDataDisplay message="No documents available" />;
-        }
-        return (
-          <div className="space-y-4">
-            {renderCollapsibleSection("Document Links", 
-              renderGridSection([
-                {
-                  label: "Payment Voucher Link",
-                  value: transaction.certificates?.[0]?.paymentVoucherLink ? (
-                    <a 
-                      href={transaction.certificates[0].paymentVoucherLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 flex items-center gap-1.5 text-sm"
-                    >
-                      <FileImage className="h-3.5 w-3.5" />
-                      View Payment Voucher
-                    </a>
-                  ) : 'N/A',
-                  show: !!transaction.certificates?.[0]?.paymentVoucherLink
-                },
-                {
-                  label: "Gold Certificate Link",
-                  value: transaction.certificates?.[0]?.goldCertificateLink ? (
-                    <a 
-                      href={transaction.certificates[0].goldCertificateLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 flex items-center gap-1.5 text-sm"
-                    >
-                      <FileImage className="h-3.5 w-3.5" />
-                      View Gold Certificate
-                    </a>
-                  ) : 'N/A',
-                  show: !!transaction.certificates?.[0]?.goldCertificateLink
-                }
-              ]), "document-links", <FileText className="h-4 w-4" />
-            )}
-          </div>
-        );
+        return <DocumentsTab transaction={transaction} onPreview={openPreview} />;
 
       case 'termination':
-        if (!hasTerminationData()) {
+        if (!hasTerminationData() && transaction.transactionType !== 'GAE') {
           return <NoDataDisplay message="No termination information available" />;
         }
         return (
-          <div className="space-y-4">
-            {renderCollapsibleSection("Termination Information", 
-              renderGridSection([
-                {
-                  label: "Terminated Amount",
-                  value: transaction.terminatedAmount ? PriceFormat(transaction.terminatedAmount) : 'N/A',
-                  show: !!transaction.terminatedAmount
-                },
-                {
-                  label: "Termination Status",
-                  value: safeStr(transaction.statusOfTermination) || 'N/A',
-                  show: !!transaction.statusOfTermination
-                },
-                {
-                  label: "Request Date For Termination",
-                  value: safeDate(transaction.requestDateForTermination),
-                  show: !!transaction.requestDateForTermination
-                },
-                {
-                  label: "Approved By Termination",
-                  value: safeStr(transaction.approvedByTermination) || 'N/A',
-                  show: !!transaction.approvedByTermination
-                }
-              ]), "termination-info", <XCircle className="h-4 w-4" />
+          <div className="space-y-6">
+            {/* Standard Termination Information */}
+            {hasTerminationData() && (
+              <div>
+                {renderCollapsibleSection("Termination Information", 
+                  renderGridSection([
+                    {
+                      label: "Terminated Amount",
+                      value: transaction.terminatedAmount ? PriceFormat(transaction.terminatedAmount) : 'N/A',
+                      show: !!transaction.terminatedAmount
+                    },
+                    {
+                      label: "Termination Status",
+                      value: safeStr(transaction.statusOfTermination) || 'N/A',
+                      show: !!transaction.statusOfTermination
+                    },
+                    {
+                      label: "Request Date For Termination",
+                      value: safeDate(transaction.requestDateForTermination),
+                      show: !!transaction.requestDateForTermination
+                    },
+                    {
+                      label: "Approved By Termination",
+                      value: safeStr(transaction.approvedByTermination) || 'N/A',
+                      show: !!transaction.approvedByTermination
+                    }
+                  ]), "termination-info", <XCircle className="h-4 w-4" />
+                )}
+              </div>
+            )}
+
+            {/* GAE Partial Terminations */}
+            {transaction.transactionType === 'GAE' && (
+              <div>
+                <GAETerminationPartials 
+                  partials={gaeTerminationData?.getPartials || []} 
+                  loading={gaeTerminationLoading}
+                />
+              </div>
             )}
           </div>
         );
@@ -578,59 +654,61 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#1E1E20] text-white">
+    <div className="min-h-screen bg-[#171717] text-white">
       {/* Header */}
-      <div className="border-b border-gray-700 golden-bg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-3">
+      <div className="border-b border-[#3A3A3A] bg-[#1E1E1E]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-4">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onBack}
-                className="text-black hover:text-white hover:bg-gray-800 h-8 px-3"
+                className="text-white hover:text-white hover:bg-[#3A3A3A] h-8 px-3"
               >
                 <ArrowLeft className="h-4 w-4 mr-1.5" />
                 Back
               </Button>
-              <div className="h-5 w-px bg-gray-600" />
-              <Breadcrumb textColor="text-black" rootColor="text-black" linkColor="text-black" currentColor="text-black" separatorColor="text-black" />
+              <Separator orientation="vertical" className="h-5 bg-[#3A3A3A]" />
+              <Breadcrumb textColor="text-white" rootColor="text-white" linkColor="text-white" currentColor="text-white" separatorColor="text-white" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Page Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-white">{title}</h1>
-              <p className="text-gray-400 mt-1 text-sm">
-                Transaction Code: {formatTransactionCode(transaction.transactionCode)}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/80 rounded-lg border border-gray-700">
-                {getStatusIcon(transaction.transactionStatus)}
-                <span className="font-medium text-sm">{transaction.transactionStatus}</span>
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-[#f89004]/20 rounded-lg">
+                <Hash className="w-8 h-8 text-[#f89004]" />
               </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">{title}</h1>
+                <p className="text-gray-400 mt-1 text-sm">
+                  Transaction Code: {formatTransactionCode(transaction.transactionCode)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              {getStatusBadge(transaction.transactionStatus)}
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-1 border-b border-gray-700">
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-1 border-b border-[#3A3A3A]">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-t-lg transition-colors ${
                   activeTab === tab.key
-                    ? 'bg-gray-800 text-white border-b-2 border-blue-500'
-                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800/50'
+                    ? 'bg-[#1E1E1E] text-white border-b-2 border-[#f89004]'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-[#1E1E1E]/50'
                 }`}
               >
                 {tab.icon}
@@ -645,6 +723,12 @@ const TransactionDetailsPage: React.FC<TransactionDetailsPageProps> = ({
           {renderTabContent()}
         </div>
       </div>
+
+      {/* Preview Modal */}
+      <DocumentPreviewModal 
+        previewModal={previewModal} 
+        onClose={closePreview} 
+      />
     </div>
   );
 };

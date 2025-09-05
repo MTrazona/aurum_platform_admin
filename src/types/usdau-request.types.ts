@@ -1,4 +1,4 @@
-import type { Customer } from "./transaction.types";
+import type { User as Customer } from "./customer.types";
 
 export interface USDAUWallet {
   id: number;
