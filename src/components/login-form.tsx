@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { saveToken } from "@/zustand/store/store.provider";
 import { useError } from "@/context/error-context";
 import { InlineError } from "@/components/error-ui";
+import { useAuth } from "@/context/auth-context";
 
 export function LoginForm({
   className,
@@ -15,6 +16,7 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const navigate = useNavigate();
   const { showError } = useError();
+  const { refetchUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,14 @@ export function LoginForm({
       const response = await signinAuthentication(data);
 
       if (response.jwt) {
-        saveToken(response.jwt)
+        saveToken(response.jwt);
+        // Refetch user data to ensure it's available when navigating to dashboard
+        try {
+          await refetchUser();
+        } catch (refetchError) {
+          console.warn("Failed to refetch user data after login:", refetchError);
+          // Continue with navigation even if refetch fails - the AuthProvider will handle it
+        }
         navigate("/dashboard");
       } else {
         setErrorMessage("Login failed. Please check your credentials.");

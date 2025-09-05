@@ -31,7 +31,7 @@ export default function ViewCharityDialog({ charity, open, onClose }: ViewCharit
 
   const getTotalAmount = () => {
     return charity.donateReceiver.reduce((total, donation) => {
-      return total + parseFloat(donation.amount || 0);
+      return total + parseFloat(String(donation.amount || 0));
     }, 0);
   };
 

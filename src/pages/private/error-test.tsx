@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useError } from '@/context/error-context';
-import { ErrorUI, NetworkError, ServerError, NotFoundError, PermissionError } from '@/components/error-ui';
+import { NetworkError, ServerError, NotFoundError, PermissionError } from '@/components/error-ui';
 
 // Component that throws an error for testing
 const ErrorThrower: React.FC = () => {

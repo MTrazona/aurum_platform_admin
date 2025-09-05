@@ -129,7 +129,6 @@ export const useApiErrorHandler = () => {
   const handleApiError = useCallback((error: unknown) => {
     // Enhanced API error handling
     if (error instanceof AxiosError) {
-      const status = error.response?.status;
       const data = error.response?.data;
 
       // Handle specific API error formats

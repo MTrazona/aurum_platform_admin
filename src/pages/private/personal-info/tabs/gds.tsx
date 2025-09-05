@@ -1,6 +1,6 @@
 import type React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Group } from "@/types/personalinfo";
@@ -28,28 +28,28 @@ type GDSTabProps = {
 };
 
 // Helper function to parse members string and extract member information
-const parseMembers = (membersString: string): string[] => {
-  if (!membersString) return [];
-  
-  // Split by common delimiters and clean up
-  const members = membersString
-    .split(/[,;|]/)
-    .map(member => member.trim())
-    .filter(member => member.length > 0);
-  
-  return members;
-};
+// const parseMembers = (membersString: string): string[] => {
+//   if (!membersString) return [];
+//   
+//   // Split by common delimiters and clean up
+//   const members = membersString
+//     .split(/[,;|]/)
+//     .map(member => member.trim())
+//     .filter(member => member.length > 0);
+//   
+//   return members;
+// };
 
 // Helper function to get initials from a name
-const getInitials = (name: string): string => {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map(word => word.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-};
+// const getInitials = (name: string): string => {
+//   if (!name) return "?";
+//   return name
+//     .split(" ")
+//     .map(word => word.charAt(0))
+//     .join("")
+//     .toUpperCase()
+//     .slice(0, 2);
+// };
 
 // Helper function to get status color and icon
 const getStatusInfo = (status: string) => {
@@ -93,12 +93,12 @@ const getStatusInfo = (status: string) => {
 };
 
 // Helper function to get currency color
-const getCurrencyColor = (currency: string): string => {
+const getCurrencyColor = (_currency: string): string => {
   return "bg-slate-600/20 text-slate-300 border-slate-600/30";
 };
 
 // Helper function to get group type color
-const getGroupTypeColor = (type: string): string => {
+const getGroupTypeColor = (_type: string): string => {
   return "bg-slate-600/20 text-slate-300 border-slate-600/30";
 };
 
@@ -140,7 +140,6 @@ const GDSTab: React.FC<GDSTabProps> = ({ groups, loading = false }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {groups.map((group) => {
-        const members = parseMembers(group.members);
         const statusInfo = getStatusInfo(group.groupStatus);
         const StatusIcon = statusInfo.icon;
         

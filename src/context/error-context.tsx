@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useCallback, ReactNode } from 'react';
 import { useErrorHandler, ErrorState } from '@/hooks/use-error-handler';
 
 interface ErrorContextType {
@@ -29,7 +29,7 @@ export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
     handleError(error);
   }, [handleError]);
 
-  const showGlobalError = useCallback((message: string, type: ErrorState['errorType'] = 'generic') => {
+  const showGlobalError = useCallback((message: string, _type: ErrorState['errorType'] = 'generic') => {
     handleError(new Error(message));
   }, [handleError]);
 
