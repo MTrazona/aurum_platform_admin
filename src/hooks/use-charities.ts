@@ -58,10 +58,10 @@ export const useCharities = () => {
   // Get statistics
   const getStats = useCallback(() => {
     const total = charities.length;
-    const active = charities.filter(c => c.status === "Active").length;
-    const inactive = charities.filter(c => c.status === "Inactive").length;
-    const pending = charities.filter(c => c.status === "Pending").length;
-    const suspended = charities.filter(c => c.status === "Suspended").length;
+    const active = charities.filter(c => c.charity.is_active).length;
+    const inactive = charities.filter(c => !c.charity.is_active).length;
+    const pending = 0; // No pending status in new structure
+    const suspended = 0; // No suspended status in new structure
 
     return { total, active, inactive, pending, suspended };
   }, [charities]);

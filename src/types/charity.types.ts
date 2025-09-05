@@ -1,3 +1,28 @@
+export interface DonateReceiver {
+  id: number;
+  donateDate: string;
+  donateStatus: string;
+  amount: string;
+  createdAt: string;
+  txnTransfer: string | null;
+  sender: {
+    email: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+  };
+}
+
+export interface CharityInfo {
+  charityName: string;
+  description: string;
+  imageUrl: string | null;
+  location: string;
+  is_active: boolean;
+  charityType: string;
+  createdAt: string;
+}
+
 export interface Charity {
   id: number;
   // User/Contact Information
@@ -7,19 +32,12 @@ export interface Charity {
   middleName: string;
   lastName: string;
   country: string;
-  phoneNumber: string;
   
-  // Charity Information
-  charityName: string;
-  description: string;
-  imageUrl: string;
-  location: string;
-  charityType: string;
+  // Nested charity information
+  charity: CharityInfo;
   
-  // System fields
-  status: CharityStatus;
-  createdAt: string;
-  updatedAt: string;
+  // Donation data
+  donateReceiver: DonateReceiver[];
 }
 
 export type CharityCategory = 
@@ -49,7 +67,7 @@ export interface CreateCharityRequest {
   country: string;
   phoneNumber: string;
   
-  // Charity Information
+  // Charity Information (flat structure to match API payload)
   charityName: string;
   description: string;
   imageUrl: string;
