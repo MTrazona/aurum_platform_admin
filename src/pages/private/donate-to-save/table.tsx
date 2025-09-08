@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useCharities } from "@/hooks/use-charities";
 import type { Charity, CharityFilters } from "@/types/charity.types";
