@@ -36,6 +36,7 @@ import {
   FileSignature,
   ShoppingCart,
   SquareTerminal,
+  TicketCheck,
   User,
 } from "lucide-react";
 import * as React from "react";
@@ -74,6 +75,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         { title: "USDAU Request", url: urls.usdauReq, icon: Building2, roles: [Roles.Admin] },
         { title: "Rankup Request", url: urls.rankReq, icon: ArrowUpCircle, roles: [Roles.Admin] },
         { title: "Donate To Save", url: urls.donatetoSave, icon: ArrowUpCircle, roles: [Roles.Admin] },
+        { title: "Redemption", url: urls.redemption, icon: TicketCheck, roles: [Roles.Admin] },
       ],
     },
   ];

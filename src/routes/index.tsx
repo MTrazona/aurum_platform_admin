@@ -17,6 +17,7 @@ import {
   DonateToSavePage,
 } from "@/pages";
 import ErrorPage from "@/pages/error-page";
+import Redemption from "@/pages/private/redemption";
 
 export const urls = {
   login: "/",
@@ -32,6 +33,7 @@ export const urls = {
   usdauReq: "/usdau-requests",
   personalInfo: "/users/:id",
   donatetoSave: "/donate-to-save",
+  redemption: "/redemption",
 };
 
 export const routeList = {
@@ -54,6 +56,7 @@ export const routeList = {
       { path: urls.usdauReq, element: withGuard(<USDAURequestsPage />) },
       { path: urls.personalInfo, element: withGuard(<PersonalInfoPage />) },
       { path: urls.donatetoSave, element: withGuard(<DonateToSavePage />) },
+      { path: urls.redemption, element: withGuard(<Redemption />) },
       { path: "*", element: <ErrorPage /> },
     ],
   },
