@@ -9,9 +9,12 @@ export const redemptionApi = {
   },
 
   // ✅ Create a new merchant redemption
-  create: async (data: any): Promise<RedemptionBusiness> => {
-    // send customerId instead of full object
-    const response = await api.post("/add-merchant-redemption", data);
+  create: async (data: FormData): Promise<RedemptionBusiness> => {
+    const response = await api.post("/add-merchant-redemption", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 };

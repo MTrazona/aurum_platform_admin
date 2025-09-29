@@ -23,11 +23,8 @@ export type RedemptionBusiness = {
   bankDocument: string | null;
   industry_merchantCategoryCode: string;
   descriptionProduct: string;
-  createdAt: string;  // ISO date string
-  updatedAt: string;  // ISO date string
-  publishedAt: string; // ISO date string
   locale: string | null;
 
-  // 👇 Added
   customer: RedemptionCustomer;
+  businessImage: string
 };

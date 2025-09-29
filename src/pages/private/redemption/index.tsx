@@ -2,11 +2,11 @@ import Breadcrumb from "@/components/routes-bread-crumb"
 import StatCard from "@/components/stat-card"
 import { Button } from "@/components/ui/button"
 import { Ban, Building2, CheckCircle, Heart, Package, Plus } from "lucide-react"
-import RedemptionCardGrid from "./table"
+import RedemptionCardGrid from "./component/table"
 import { RedemptionBusiness } from "@/types/redemption.type"
 import { redemptionApi } from "@/apis/redemptionAPI"
 import { useEffect, useState } from "react"
-import CreateRedemptionBusinessDialog from "./CreateRedemptionBusinessDialog"
+import CreateRedemptionBusinessDialog from "./component/CreateRedemptionBusinessDialog"
 
 const index = () => {
     const [businesses, setBusinesses] = useState<RedemptionBusiness[]>([]);
@@ -28,10 +28,8 @@ const index = () => {
         fetchBusinesses();
     }, []);
 
-    console.log('asd', businesses)
-
     const handleBusinessCreated = (newBusiness: RedemptionBusiness) => {
-        setBusinesses((prev) => [newBusiness, ...prev]);
+        // setBusinesses((prev) => [newBusiness, ...prev]);
         setIsCreateDialogOpen(false); // close modal after creation
     };
   return (
@@ -84,7 +82,7 @@ const index = () => {
                 />
             </div>
             <RedemptionCardGrid
-                charities={businesses}
+                business={businesses }
                 isLoading={loading}
             />
             <CreateRedemptionBusinessDialog
